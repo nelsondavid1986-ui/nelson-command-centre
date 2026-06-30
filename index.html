@@ -1,239 +1,527 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nelson Command Centre</title>
-  <meta name="theme-color" content="#0f766e" />
-  <meta name="description" content="Personal task, countdown, calendar and daily review command centre." />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Nelson Command Centre V2.3 — Google Sheets Sync</title>
+<meta name="theme-color" content="#070611" />
+<style>
+:root{
+  --bg:#050510;--bg2:#090b1d;--violet:#7c3aed;--purple:#a855f7;--cyan:#22d3ee;--green:#22c55e;
+  --amber:#f59e0b;--red:#ef4444;--text:#f8fafc;--muted:#94a3b8;--panel:rgba(15,23,42,.74);
+  --panel2:rgba(30,27,75,.62);--line:rgba(168,85,247,.30);--line2:rgba(34,211,238,.22);
+  --radius:24px;--shadow:0 22px 70px rgba(0,0,0,.46);--glow:0 0 38px rgba(124,58,237,.28)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;color:var(--text);font-family:Inter,Roboto,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 9% 0%,rgba(124,58,237,.42),transparent 32%),
+    radial-gradient(circle at 96% 8%,rgba(34,197,94,.16),transparent 25%),
+    radial-gradient(circle at 9% 94%,rgba(168,85,247,.22),transparent 33%),
+    radial-gradient(circle at 92% 90%,rgba(34,211,238,.13),transparent 28%),
+    linear-gradient(135deg,#050510,#090b1d 45%,#1d0f3d);
+}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,#000,transparent)}
+.app{width:min(1240px,100%);margin:0 auto;padding:14px 14px 92px}
+.hero{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:32px;padding:22px;background:linear-gradient(135deg,rgba(15,23,42,.82),rgba(30,27,75,.56));box-shadow:var(--shadow),var(--glow);backdrop-filter:blur(22px);margin:4px 0 12px}
+.eyebrow{margin:0;text-transform:uppercase;letter-spacing:.14em;font-size:.72rem;font-weight:1000;color:#c4b5fd}
+h1,h2,h3{letter-spacing:-.04em}h1{font-size:clamp(1.55rem,5vw,2.85rem);line-height:1;margin:4px 0}h2{margin:4px 0 10px}h3{margin:0}
+.muted,.meta{color:var(--muted);line-height:1.45}.meta{font-size:.9rem}
+.save-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(34,211,238,.24);background:rgba(34,211,238,.09);color:#bfdbfe;border-radius:999px;padding:8px 11px;font-weight:900;white-space:nowrap}
+.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 14px rgba(34,197,94,.7)}
+.nav{display:flex;gap:8px;overflow-x:auto;padding:8px;border-radius:999px;background:rgba(2,6,23,.45);border:1px solid rgba(255,255,255,.07);position:sticky;top:8px;z-index:5;backdrop-filter:blur(16px)}
+button,.btn{font:inherit;font-weight:900;cursor:pointer;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.06);color:var(--text);border-radius:999px;padding:10px 13px}
+.nav button{white-space:nowrap}.nav button.active{background:linear-gradient(135deg,var(--violet),var(--cyan));box-shadow:0 0 25px rgba(124,58,237,.36)}
+.btn.primary{background:linear-gradient(135deg,var(--violet),var(--cyan));box-shadow:0 0 24px rgba(124,58,237,.28)}
+.btn.green{background:linear-gradient(135deg,#16a34a,var(--green));color:#04130a}.btn.danger{background:linear-gradient(135deg,#991b1b,var(--red))}
+.view{display:none;animation:fade .18s ease}.view.active{display:block}@keyframes fade{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.grid{display:grid;gap:14px}.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}.four{grid-template-columns:repeat(4,1fr)}
+.card{padding:18px;border-radius:var(--radius);border:1px solid var(--line);background:var(--panel);box-shadow:var(--shadow);backdrop-filter:blur(18px);position:relative;overflow:hidden}
+.card:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.06),transparent 35%)}
+.card>*{position:relative;z-index:1}.kpi strong{display:block;font-size:2rem;margin:3px 0}.label{display:block;color:var(--muted);font-weight:1000;text-transform:uppercase;letter-spacing:.08em;font-size:.74rem}
+.section-title{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.actions{display:flex;flex-wrap:wrap;gap:8px}.stack{display:grid;gap:10px}
+label{display:grid;gap:6px;font-size:.86rem;font-weight:900;color:#e2e8f0}
+input,select,textarea{width:100%;border:1px solid rgba(255,255,255,.12);background:rgba(2,6,23,.52);color:var(--text);border-radius:16px;padding:12px 13px;font:inherit;outline:none}
+textarea{resize:vertical}input:focus,select:focus,textarea:focus{border-color:rgba(34,211,238,.55);box-shadow:0 0 0 4px rgba(34,211,238,.10)}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.wide{grid-column:span 2}.full{grid-column:1/-1}
+.item{padding:14px;border-radius:18px;background:rgba(2,6,23,.38);border:1px solid rgba(255,255,255,.08)}
+.item-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.item-title{margin:0 0 5px;font-weight:1000}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.badge{font-size:.72rem;font-weight:1000;border-radius:999px;padding:5px 8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08)}
+.safe{color:#86efac;background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.24)}.warn{color:#fcd34d;background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.24)}.bad{color:#fca5a5;background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.24)}.cyan{color:#67e8f9;background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.22)}
+.template-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.template{border-radius:18px;padding:13px;text-align:left;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);color:white}.template strong{display:block}.template small{color:var(--muted)}
+.exercise-card{border:1px solid rgba(168,85,247,.24);background:rgba(15,23,42,.58);border-radius:22px;padding:14px}
+.exercise-summary{display:grid;grid-template-columns:1.25fr .85fr .85fr .85fr auto;gap:10px;align-items:center}.exercise-summary button{padding:8px 10px}
+.set-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
+.set-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}.hide{display:none!important}
+.bar-row{display:grid;grid-template-columns:100px 1fr 72px;gap:8px;align-items:center}.bar-track{height:13px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}.bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--violet),var(--cyan))}
+.donut-wrap{display:flex;gap:18px;align-items:center}.donut{width:128px;height:128px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) 0deg,rgba(255,255,255,.09) 0deg);position:relative;box-shadow:0 0 35px rgba(34,197,94,.14)}.donut:before{content:"";position:absolute;width:84px;height:84px;border-radius:50%;background:rgba(2,6,23,.92)}.donut span{position:relative;font-weight:1000}
+canvas{width:100%;max-width:100%;background:rgba(2,6,23,.22);border:1px solid rgba(255,255,255,.06);border-radius:18px}
+.toast{position:fixed;right:14px;bottom:18px;background:rgba(15,23,42,.94);border:1px solid var(--line2);box-shadow:var(--shadow);border-radius:18px;padding:12px 14px;z-index:20;display:none}.toast.show{display:block;animation:pop .2s ease}@keyframes pop{from{transform:translateY(8px);opacity:.2}to{transform:none;opacity:1}}
+.bottom{display:none;position:fixed;left:10px;right:10px;bottom:10px;z-index:9;padding:8px;border-radius:24px;border:1px solid var(--line);background:rgba(2,6,23,.84);backdrop-filter:blur(18px);box-shadow:var(--shadow)}.bottom button{flex:1;border:0;background:transparent;color:#cbd5e1;padding:10px 7px;border-radius:16px;font-size:.82rem}.bottom button.active{background:rgba(124,58,237,.38);color:white}
+@media(max-width:940px){.two,.three,.four,.template-grid{grid-template-columns:1fr 1fr}.exercise-summary{grid-template-columns:1fr 1fr}.form-grid,.set-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.app{padding:10px 10px 86px}.hero{flex-direction:column;border-radius:24px}.nav{display:none}.bottom{display:flex}.two,.three,.four,.template-grid,.form-grid,.set-grid{grid-template-columns:1fr}.wide{grid-column:auto}.section-title,.item-head{flex-direction:column}.actions{display:grid;grid-template-columns:1fr 1fr}.actions .btn,button.btn{width:100%}.exercise-summary{grid-template-columns:1fr}.bar-row{grid-template-columns:82px 1fr 54px}.donut-wrap{flex-direction:column;align-items:flex-start}}
+</style>
 </head>
 <body>
-  <header class="app-header">
-    <div>
-      <p class="eyebrow">Personal Workload System</p>
-      <h1>Nelson Command Centre</h1>
-      <p class="subtle">Tasks • Countdown • Google Calendar • Daily Review</p>
+<div class="app">
+<header class="hero">
+  <div>
+    <p class="eyebrow">UI/UX Pro Max Upgrade</p>
+    <h1>Nelson Command Centre V2.3</h1>
+    <p class="muted">Autosave • Google Sheets SyncLog • finish workflow • progress graphs • dark futuristic command UI</p>
+  </div>
+  <div class="actions">
+    <span id="saveStatus" class="save-pill"><span class="save-dot"></span>Saved locally</span>
+    <button id="installBtn" class="btn hide">Install</button>
+  </div>
+</header>
+
+<nav class="nav">
+  <button data-view="home" class="active">Home</button>
+  <button data-view="workout">Workout</button>
+  <button data-view="progress">Progress</button>
+  <button data-view="nutrition">Nutrition</button>
+  <button data-view="tasks">Tasks</button>
+  <button data-view="settings">Settings</button>
+</nav>
+
+<main>
+<section id="home" class="view active">
+  <div class="grid four">
+    <article class="card kpi"><span class="label">Daily Score</span><strong id="score">0</strong><small class="muted">health + work</small></article>
+    <article class="card kpi"><span class="label">Workout</span><strong id="homeWorkout">—</strong><small id="homeWorkoutMini" class="muted">not finished</small></article>
+    <article class="card kpi"><span class="label">Protein</span><strong id="homeProtein">0g</strong><small id="homeProteinMini" class="muted"></small></article>
+    <article class="card kpi"><span class="label">Water</span><strong id="homeWater">0L</strong><small id="homeWaterMini" class="muted"></small></article>
+  </div>
+  <article class="card" style="margin-top:14px">
+    <p class="eyebrow">Daily Verdict</p>
+    <h2 id="verdictTitle">System pending</h2>
+    <p id="verdictText" class="meta" style="font-size:1.05rem"></p>
+    <p id="verdictTip" class="badge safe"></p>
+  </article>
+  <div class="grid two" style="margin-top:14px">
+    <article class="card">
+      <div class="section-title"><div><p class="eyebrow">Next Action</p><h2>Today’s Top 3</h2></div><button class="btn" id="autoTop3">Auto-select</button></div>
+      <div id="top3List" class="stack"></div>
+    </article>
+    <article class="card">
+      <p class="eyebrow">Workout Summary</p><h2>Current Draft / Finished Session</h2>
+      <div id="homeWorkoutSummary" class="stack"></div>
+    </article>
+  </div>
+</section>
+
+<section id="workout" class="view">
+  <div class="section-title">
+    <div><p class="eyebrow">Detailed Workout UX</p><h2>Plan → Start → Log Actual Sets → Finish</h2></div>
+    <div class="actions">
+      <button class="btn" id="copyPrompt">Copy ChatGPT Prompt</button>
+      <button class="btn danger" id="clearDraft">Clear Draft</button>
     </div>
-    <button id="installBtn" class="ghost hidden">Install</button>
-  </header>
+  </div>
 
-  <main class="container">
-    <section class="status-grid">
-      <article class="status-card">
-        <span class="label">Workload</span>
-        <strong id="workloadStatus">Normal</strong>
-        <small id="workloadHint">No critical task detected.</small>
-      </article>
-      <article class="status-card">
-        <span class="label">Today</span>
-        <strong id="todayCount">0</strong>
-        <small>tasks due today</small>
-      </article>
-      <article class="status-card">
-        <span class="label">Overdue</span>
-        <strong id="overdueCount">0</strong>
-        <small>needs damage control</small>
-      </article>
-      <article class="status-card">
-        <span class="label">Done</span>
-        <strong id="doneCount">0</strong>
-        <small>completed tasks</small>
-      </article>
-    </section>
+  <div class="grid four">
+    <article class="card kpi"><span class="label">Session Status</span><strong id="sessionStatus">Draft</strong><small class="muted">autosaved</small></article>
+    <article class="card kpi"><span class="label">Exercises</span><strong id="exCount">0</strong><small class="muted">planned</small></article>
+    <article class="card kpi"><span class="label">Actual Volume</span><strong id="actualVolume">0</strong><small class="muted">kg</small></article>
+    <article class="card kpi"><span class="label">Cardio</span><strong id="cardioMin">0</strong><small class="muted">minutes</small></article>
+  </div>
 
-    <section class="panel">
-      <div class="section-title">
-        <div>
-          <p class="eyebrow">Focus</p>
-          <h2>Today’s Top 3</h2>
-        </div>
-        <button id="autoTop3Btn" class="secondary">Auto-select</button>
+  <article class="card" style="margin-top:14px">
+    <div class="section-title"><div><p class="eyebrow">Step 1</p><h2>Session setup</h2></div><span class="badge cyan">Autosaves when changed</span></div>
+    <div class="form-grid">
+      <label>Location<select id="d_location"><option>Gym</option><option>Home Workout</option><option>Rest / Recovery</option><option>Cardio Only</option></select></label>
+      <label>Focus<select id="d_focus"><option>Back + Rear Delt</option><option>Chest + Shoulder</option><option>Legs + Core</option><option>Arms + Incline Walk</option><option>Full Body</option><option>Cardio</option><option>Recovery</option></select></label>
+      <label>Body weight kg<input id="d_bodyWeight" type="number" step="0.1" placeholder="68.0"></label>
+      <label>Energy 1–5<input id="d_energy" type="number" min="1" max="5" placeholder="3"></label>
+      <label>Duration minutes<input id="d_duration" type="number" placeholder="60"></label>
+      <label>Workout state<select id="d_status"><option>Draft</option><option>In Progress</option><option>Completed</option></select></label>
+    </div>
+  </article>
+
+  <article class="card" style="margin-top:14px">
+    <div class="section-title"><div><p class="eyebrow">Step 2</p><h2>Choose template</h2></div></div>
+    <div id="templateGrid" class="template-grid"></div>
+  </article>
+
+  <article class="card" style="margin-top:14px">
+    <div class="section-title">
+      <div><p class="eyebrow">Step 3</p><h2>Exercise cards</h2><p class="muted">Collapsed summary first. Expand only when editing. Better on Android.</p></div>
+      <div class="actions"><button class="btn green" id="addEx">+ Add Exercise</button><button class="btn primary" id="finishWorkout">Finish Workout</button></div>
+    </div>
+    <div id="exerciseList" class="stack"></div>
+  </article>
+
+  <div class="grid two" style="margin-top:14px">
+    <article class="card">
+      <p class="eyebrow">After Save Result</p>
+      <h2 id="finishTitle">Not finished yet</h2>
+      <div id="finishSummary" class="stack"></div>
+    </article>
+    <article class="card">
+      <p class="eyebrow">Strict Trainer Comment</p>
+      <h2 id="trainerTitle">No judgement yet</h2>
+      <p id="trainerComment" class="meta"></p>
+      <p id="trainerTip" class="badge safe"></p>
+    </article>
+  </div>
+</section>
+
+<section id="progress" class="view">
+  <div class="section-title">
+    <div><p class="eyebrow">Progress Check</p><h2>Compare, graph, recommend next target</h2></div>
+    <label style="min-width:260px">Exercise to inspect<select id="exerciseInspect"></select></label>
+  </div>
+  <div class="grid two">
+    <article class="card"><p class="eyebrow">Exercise Progress</p><h2 id="inspectTitle">Select exercise</h2><div id="inspectTable" class="stack"></div></article>
+    <article class="card"><p class="eyebrow">Graph</p><h2>Selected Exercise Volume</h2><canvas id="exerciseChart" width="520" height="240"></canvas></article>
+    <article class="card"><p class="eyebrow">Weekly Balance</p><h2>Muscle Group Volume</h2><div id="muscleBars" class="stack"></div></article>
+    <article class="card"><p class="eyebrow">All Workouts</p><h2>Total Volume Trend</h2><canvas id="volumeChart" width="520" height="240"></canvas></article>
+  </div>
+</section>
+
+<section id="nutrition" class="view">
+  <div class="grid two">
+    <article class="card">
+      <div class="section-title"><div><p class="eyebrow">Protein</p><h2>Meal Log</h2></div><button class="btn primary" id="addMeal">Add Meal</button></div>
+      <div class="grid three">
+        <div class="item"><span class="label">Consumed</span><h2 id="proteinNow">0g</h2></div>
+        <div class="item"><span class="label">Remaining</span><h2 id="proteinRemain">0g</h2></div>
+        <div class="item"><span class="label">Meals</span><h2 id="mealCount">0</h2></div>
       </div>
-      <div id="top3List" class="task-list empty-box">No Top 3 selected yet.</div>
-    </section>
-
-    <section class="panel">
-      <div class="section-title">
-        <div>
-          <p class="eyebrow">Capture</p>
-          <h2>Add / Edit Task</h2>
-        </div>
-        <button id="resetFormBtn" class="ghost">Clear</button>
+      <div id="mealList" class="stack" style="margin-top:12px"></div>
+    </article>
+    <article class="card">
+      <p class="eyebrow">Plain Water</p><h2>Hydration</h2>
+      <div class="donut-wrap">
+        <div class="donut" id="waterDonut"><span id="waterPct">0%</span></div>
+        <div><p id="waterComment" class="meta"></p><p id="waterReward" class="badge safe"></p></div>
       </div>
-
-      <form id="taskForm" class="task-form">
-        <input type="hidden" id="taskId" />
-
-        <label>
-          Task title
-          <input id="title" required placeholder="Example: Complete HRDC course outline 1" />
-        </label>
-
-        <div class="two-col">
-          <label>
-            Project
-            <select id="project"></select>
-          </label>
-
-          <label>
-            Category
-            <select id="category"></select>
-          </label>
-        </div>
-
-        <div class="two-col">
-          <label>
-            Priority
-            <select id="priority">
-              <option value="P1 Fire">P1 Fire</option>
-              <option value="P2 Important">P2 Important</option>
-              <option value="P3 Scheduled">P3 Scheduled</option>
-              <option value="P4 Later">P4 Later</option>
-              <option value="P5 Someday">P5 Someday</option>
-            </select>
-          </label>
-
-          <label>
-            Status
-            <select id="status">
-              <option value="Not Started">Not Started</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Blocked">Blocked</option>
-              <option value="Review Needed">Review Needed</option>
-              <option value="Done">Done</option>
-              <option value="Deferred">Deferred</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="two-col">
-          <label>
-            Deadline date
-            <input id="deadlineDate" type="date" />
-          </label>
-
-          <label>
-            Deadline time
-            <input id="deadlineTime" type="time" value="23:59" />
-          </label>
-        </div>
-
-        <div class="two-col">
-          <label>
-            Estimated hours
-            <input id="estimatedHours" type="number" min="0" step="0.25" placeholder="2" />
-          </label>
-
-          <label>
-            Actual hours
-            <input id="actualHours" type="number" min="0" step="0.25" placeholder="1.5" />
-          </label>
-        </div>
-
-        <label>
-          Next smallest action
-          <input id="nextAction" placeholder="Example: Draft learning outcomes and module table" />
-        </label>
-
-        <label>
-          Notes
-          <textarea id="notes" rows="3" placeholder="Files needed, remarks, blockers, links..."></textarea>
-        </label>
-
-        <div class="form-actions">
-          <button type="submit" class="primary">Save Task</button>
-          <button type="button" id="seedBtn" class="secondary">Load Your Current Tasks</button>
-        </div>
-      </form>
-    </section>
-
-    <section class="panel">
-      <div class="section-title">
-        <div>
-          <p class="eyebrow">Control</p>
-          <h2>Countdown Warning Centre</h2>
-        </div>
+      <div class="grid two" style="margin-top:14px">
+        <button class="btn green water" data-ml="250">+250ml</button>
+        <button class="btn green water" data-ml="500">+500ml</button>
+        <button class="btn green water" data-ml="750">+750ml</button>
+        <button class="btn green water" data-ml="1000">+1L</button>
       </div>
+      <div id="waterLog" class="stack" style="margin-top:12px"></div>
+    </article>
+  </div>
+</section>
 
-      <div class="filters">
-        <button class="filter active" data-filter="all">All</button>
-        <button class="filter" data-filter="today">Today</button>
-        <button class="filter" data-filter="overdue">Overdue</button>
-        <button class="filter" data-filter="critical">Critical</button>
-        <button class="filter" data-filter="P1 Fire">P1</button>
-        <button class="filter" data-filter="Done">Done</button>
+<section id="tasks" class="view">
+  <div class="section-title"><div><p class="eyebrow">Work Control</p><h2>Tasks</h2></div><button class="btn primary" id="addTask">Add Task</button></div>
+  <div id="taskList" class="stack"></div>
+</section>
+
+<section id="settings" class="view">
+  <div class="grid two">
+    <article class="card">
+      <p class="eyebrow">Targets</p><h2>Settings</h2>
+      <div class="form-grid">
+        <label>Protein target g/day<input id="s_protein" type="number"></label>
+        <label>Water target ml/day<input id="s_water" type="number"></label>
+        <label>Coach mode<select id="s_coach"><option>Nanny Mode</option><option>Bad Doctor</option><option>Strict</option><option>Neutral</option></select></label>
       </div>
-
-      <div id="taskList" class="task-list"></div>
-    </section>
-
-    <section class="panel">
-      <div class="section-title">
-        <div>
-          <p class="eyebrow">Projects</p>
-          <h2>Progress Tracker</h2>
-        </div>
+      <button class="btn primary" id="saveSettings" style="margin-top:12px">Save Settings</button>
+    </article>
+    <article class="card">
+      <p class="eyebrow">Google Sheets Sync</p><h2>Sync Settings</h2>
+      <label>Apps Script Web App URL
+        <input id="s_syncUrl" placeholder="Paste https://script.google.com/macros/s/.../exec">
+      </label>
+      <div class="actions" style="margin-top:12px">
+        <button class="btn primary" id="saveSyncUrl">Save Sync URL</button>
+        <button class="btn green" id="syncNow">Sync Now</button>
       </div>
-      <div id="projectProgress" class="progress-list"></div>
-    </section>
-
-    <section class="panel">
-      <div class="section-title">
-        <div>
-          <p class="eyebrow">Closure</p>
-          <h2>Daily Review</h2>
-        </div>
-        <button id="saveReviewBtn" class="primary small">Save Review</button>
+      <div class="item" style="margin-top:12px">
+        <span class="label">Sync Status</span>
+        <p id="syncStatusText" class="meta">Not connected yet.</p>
+        <p id="lastSyncText" class="meta">Last sync: never</p>
       </div>
+      <p class="meta">Local autosave remains active. Sync sends a full JSON backup row into your Google Sheet SyncLog.</p>
+    </article>
+    <article class="card">
+      <p class="eyebrow">Backup</p><h2>Export / Import</h2>
+      <div class="actions"><button class="btn primary" id="exportBtn">Export Backup</button><button class="btn" id="importBtn">Import Backup</button><button class="btn danger" id="resetBtn">Reset Local Data</button></div>
+      <input id="importFile" class="hide" type="file" accept="application/json">
+      <p class="meta">Data is saved locally in this browser. For synchronized mode, connect this to Google Sheets via Apps Script later.</p>
+    </article>
+  </div>
+</section>
+</main>
+<nav class="bottom">
+  <button data-view="home" class="active">Home</button><button data-view="workout">Workout</button><button data-view="progress">Progress</button><button data-view="nutrition">Food</button><button data-view="tasks">Tasks</button>
+</nav>
+</div>
+<div id="toast" class="toast"></div>
 
-      <div class="review-grid">
-        <label>
-          Completed today
-          <textarea id="reviewDone" rows="3"></textarea>
-        </label>
-        <label>
-          Still stuck
-          <textarea id="reviewStuck" rows="3"></textarea>
-        </label>
-        <label>
-          Tomorrow’s Top 3
-          <textarea id="reviewTop3" rows="3"></textarea>
-        </label>
-        <label>
-          What to postpone / stop
-          <textarea id="reviewStop" rows="3"></textarea>
-        </label>
+<script>
+const KEY="ncc_v22_uiuxpromax";
+const defaultState={
+  settings:{proteinTarget:130,waterTarget:2300,coach:"Nanny Mode",syncUrl:"",lastSync:"",syncStatus:"Not connected"},
+  draft:{id:uid(),date:today(),status:"Draft",location:"Gym",focus:"Back + Rear Delt",bodyWeight:"",energy:"",duration:"",exercises:[]},
+  workouts:[],meals:[],water:[],tasks:[]
+};
+const libs={
+  Gym:[
+    ["Bench Press","Chest","strength"],["Incline Dumbbell Press","Chest","strength"],["Chest Press Machine","Chest","strength"],["Cable Fly","Chest","strength"],
+    ["Pull-up","Back","strength"],["Lat Pulldown","Back","strength"],["Seated Row","Back","strength"],["One-arm Dumbbell Row","Back","strength"],["Face Pull","Back","strength"],["Rear Delt Fly","Shoulder","strength"],
+    ["Shoulder Press","Shoulder","strength"],["Lateral Raise","Shoulder","strength"],["Barbell Curl","Arms","strength"],["Triceps Pushdown","Arms","strength"],
+    ["Squat","Legs","strength"],["Leg Press","Legs","strength"],["Romanian Deadlift","Legs","strength"],["Leg Extension","Legs","strength"],["Leg Curl","Legs","strength"],["Calf Raise","Legs","strength"],
+    ["Plank","Core","bodyweight"],["Incline Walk","Cardio","cardio"],["Treadmill Run","Cardio","cardio"],["Cycling","Cardio","cardio"]
+  ],
+  Home:[
+    ["Pull-up","Back","strength"],["Assisted Pull-up","Back","strength"],["Push-up","Chest","bodyweight"],["Incline Push-up","Chest","bodyweight"],["Dumbbell Bench Press","Chest","strength"],
+    ["Dumbbell Row","Back","strength"],["Barbell Row","Back","strength"],["Dumbbell Shoulder Press","Shoulder","strength"],["Lateral Raise","Shoulder","strength"],
+    ["Barbell Curl","Arms","strength"],["Dumbbell Curl","Arms","strength"],["Hammer Curl","Arms","strength"],["Goblet Squat","Legs","strength"],["Barbell Squat","Legs","strength"],["Romanian Deadlift","Legs","strength"],["Plank","Core","bodyweight"],["Outdoor Walk","Cardio","cardio"]
+  ]
+};
+const templates=[
+  {name:"Gym — Back + Rear Delt",loc:"Gym",focus:"Back + Rear Delt",ex:[["Lat Pulldown","Back","strength",35,10,3],["Seated Row","Back","strength",35,10,3],["One-arm Dumbbell Row","Back","strength",18,10,3],["Face Pull","Back","strength",25,12,3],["Rear Delt Fly","Shoulder","strength",20,12,3],["Incline Walk","Cardio","cardio",0,0,1,25,10,4.5]]},
+  {name:"Gym — Chest + Shoulder",loc:"Gym",focus:"Chest + Shoulder",ex:[["Bench Press","Chest","strength",40,8,3],["Incline Dumbbell Press","Chest","strength",16,10,3],["Chest Press Machine","Chest","strength",35,10,3],["Lateral Raise","Shoulder","strength",7.5,12,4],["Face Pull","Back","strength",25,12,3],["Incline Walk","Cardio","cardio",0,0,1,25,10,4.5]]},
+  {name:"Gym — Legs + Core",loc:"Gym",focus:"Legs + Core",ex:[["Leg Press","Legs","strength",80,10,4],["Romanian Deadlift","Legs","strength",40,10,3],["Leg Extension","Legs","strength",35,12,3],["Leg Curl","Legs","strength",30,12,3],["Calf Raise","Legs","strength",40,12,4],["Plank","Core","bodyweight",0,45,3]]},
+  {name:"Home — Pull-up + Push",loc:"Home Workout",focus:"Full Body",ex:[["Pull-up","Back","strength",0,5,3],["Push-up","Chest","bodyweight",0,12,3],["Dumbbell Row","Back","strength",12,10,3],["Dumbbell Shoulder Press","Shoulder","strength",10,10,3],["Barbell Curl","Arms","strength",18,10,3],["Plank","Core","bodyweight",0,45,3]]},
+  {name:"Home — 25-Min Emergency",loc:"Home Workout",focus:"Full Body",ex:[["Pull-up","Back","strength",0,5,3],["Incline Push-up","Chest","bodyweight",0,12,3],["Dumbbell Row","Back","strength",12,10,3],["Goblet Squat","Legs","strength",12,12,3],["Plank","Core","bodyweight",0,45,3]]},
+  {name:"Cardio — Incline Walk",loc:"Cardio Only",focus:"Cardio",ex:[["Incline Walk","Cardio","cardio",0,0,1,40,12,4.5]]}
+];
+function uid(){return "id_"+Math.random().toString(36).slice(2)+Date.now().toString(36)}
+function today(){return new Date().toISOString().slice(0,10)}
+function time(){return new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
+const n=v=>Number(v||0), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])), clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+let state=load(); let saveTimer=null;
+function load(){try{return merge(defaultState,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch{return structuredClone(defaultState)}}
+function merge(a,b){let o=structuredClone(a);for(const k in b){if(b[k]&&typeof b[k]=="object"&&!Array.isArray(b[k]))o[k]=merge(o[k]||{},b[k]);else o[k]=b[k]}return o}
+function save(auto=true){localStorage.setItem(KEY,JSON.stringify(state)); if(auto)showSaved(); render();}
+function autosave(){document.getElementById("saveStatus").innerHTML='<span class="save-dot" style="background:var(--amber)"></span>Saving...';clearTimeout(saveTimer);saveTimer=setTimeout(()=>save(true),220)}
+function showSaved(){document.getElementById("saveStatus").innerHTML='<span class="save-dot"></span>Saved locally • '+time()}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
+const $=id=>document.getElementById(id);
+function switchView(v){document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id===v));document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===v)); if(v==="progress")setTimeout(drawCharts,50); window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+
+function exVolume(ex){if(ex.type==="cardio")return 0;return (ex.actualSets||[]).reduce((a,s)=>a+n(s.weight)*n(s.reps),0)}
+function plannedVolume(ex){return n(ex.weight)*n(ex.targetReps)*n(ex.plannedSets)}
+function totals(w){return (w.exercises||[]).reduce((a,e)=>{a.exercises++;a.planned+=plannedVolume(e);a.actual+=exVolume(e);a.sets+=(e.actualSets||[]).length || n(e.plannedSets);if(e.type==="cardio")a.cardio+=n(e.minutes);a.groups[e.group]=(a.groups[e.group]||0)+(exVolume(e)||plannedVolume(e));return a},{exercises:0,planned:0,actual:0,sets:0,cardio:0,groups:{}})}
+function todayProtein(){return state.meals.filter(m=>m.date===today()).reduce((a,m)=>a+n(m.protein),0)}
+function todayWater(){return state.water.filter(w=>w.date===today()).reduce((a,w)=>a+n(w.amount),0)}
+function lastWorkout(){return state.workouts.filter(w=>w.date===today()).slice(-1)[0]}
+function dailyScore(){let s=0;if(lastWorkout())s+=30;s+=Math.min(25,Math.round(todayProtein()/state.settings.proteinTarget*25));s+=Math.min(25,Math.round(todayWater()/state.settings.waterTarget*25));s+=Math.min(20,state.tasks.filter(t=>t.date===today()&&t.status==="Done").length*7);return clamp(s,0,100)}
+function verdict(){const w=lastWorkout(),p=todayProtein(),water=todayWater();if(!w&&p<80&&water<1200)return["System neglect","No finished workout, low protein, low water. This is not recovery. This is poor maintenance with a stylish dashboard.","Do one small action now: 500ml water or Home — 25-Min Emergency."];if(w&&p<state.settings.proteinTarget*.7)return["Training without repair","Workout finished, but protein is too low. You trained, then undercut recovery.","Add a proper protein meal or whey before sleep."];if(!w)return["Workout not finished","Draft may be saved, but it is not a completed workout. Finish it or mark recovery honestly.","Open Workout → Finish Workout when done."];if(water>=state.settings.waterTarget&&p>=state.settings.proteinTarget)return["Balanced health day","Workout finished, protein target hit, water target achieved. Good boy. Repeat tomorrow; do not get cocky.","Keep the same boring structure."];return["Mixed but moving","Some data is good, but one system is still weak. Fix the weakest metric before sleep.","Check protein, water, and workout status."]}
+
+function render(){
+  bindDraftToUI(false); renderHome(); renderWorkout(); renderProgress(); renderNutrition(); renderTasks(); renderSettings(); drawCharts();
+}
+function renderHome(){
+  $("score").textContent=dailyScore()+"/100";const w=lastWorkout(),t=w?totals(w):totals(state.draft);
+  $("homeWorkout").textContent=w?"Done":state.draft.status;$("homeWorkoutMini").textContent=w?`${w.focus} • ${t.sets} sets`:`Draft: ${state.draft.exercises.length} exercise(s)`;
+  $("homeProtein").textContent=todayProtein()+"g";$("homeProteinMini").textContent=`target ${state.settings.proteinTarget}g`;
+  $("homeWater").textContent=(todayWater()/1000).toFixed(2)+"L";$("homeWaterMini").textContent=`target ${(state.settings.waterTarget/1000).toFixed(1)}L`;
+  const v=verdict();$("verdictTitle").textContent=v[0];$("verdictText").textContent=v[1];$("verdictTip").textContent=v[2];
+  const top=state.tasks.filter(t=>t.top3&&t.status!=="Done").slice(0,3);
+  $("top3List").innerHTML=top.length?top.map(taskHTML).join(""):`<div class="item"><p class="meta">No Top 3 selected. Auto-select or add tasks.</p></div>`;
+  $("homeWorkoutSummary").innerHTML=summaryCards(w||state.draft,w?"Completed workout":"Current autosaved draft");
+}
+function summaryCards(w,label){const t=totals(w);return `<div class="item"><p class="item-title">${esc(label)}</p><p class="meta">${esc(w.location)} • ${esc(w.focus)} • ${esc(w.status||"Draft")}</p><div class="badges"><span class="badge cyan">${t.exercises} exercises</span><span class="badge">${t.sets} sets</span><span class="badge safe">${Math.round(t.actual||t.planned)}kg volume</span><span class="badge warn">${t.cardio} min cardio</span></div></div>`}
+
+function bindDraftToUI(fromUI=true){
+  if(!fromUI){
+    ["location","focus","bodyWeight","energy","duration","status"].forEach(k=>{const el=$("d_"+k); if(el)el.value=state.draft[k]||""});
+    return;
+  }
+  ["location","focus","bodyWeight","energy","duration","status"].forEach(k=>state.draft[k]=$("d_"+k).value);
+  autosave();
+}
+function renderWorkout(){
+  const t=totals(state.draft);$("sessionStatus").textContent=state.draft.status||"Draft";$("exCount").textContent=state.draft.exercises.length;$("actualVolume").textContent=Math.round(t.actual);$("cardioMin").textContent=t.cardio;
+  $("templateGrid").innerHTML=templates.map((tpl,i)=>`<button class="template" onclick="loadTemplate(${i})"><strong>${tpl.name}</strong><small>${tpl.ex.length} exercises • ${tpl.loc}</small></button>`).join("");
+  $("exerciseList").innerHTML=state.draft.exercises.length?state.draft.exercises.map(exHTML).join(""):`<div class="item"><p class="meta">No exercise yet. Choose a template or add exercise.</p></div>`;
+  const tv=trainerVerdict();$("trainerTitle").textContent=tv[0];$("trainerComment").textContent=tv[1];$("trainerTip").textContent=tv[2];
+  const lw=lastWorkout();$("finishTitle").textContent=lw?"Workout completed today":"Not finished yet";$("finishSummary").innerHTML=lw?finishedSummary(lw):`<div class="item"><p class="meta">Autosave protects the draft. Finish Workout calculates progress and locks today’s session.</p></div>`;
+}
+function makeEx(arr){let [name,group,type,weight,reps,sets,minutes,incline,speed]=arr;return{id:uid(),name,group,type,weight:weight||0,targetReps:reps||0,plannedSets:sets||1,rest:90,rpe:7,minutes:minutes||0,incline:incline||0,speed:speed||0,expanded:false,actualSets:Array.from({length:sets||1},()=>({weight:weight||0,reps:reps||0}))}}
+function loadTemplate(i){const tpl=templates[i];state.draft={id:uid(),date:today(),status:"Draft",location:tpl.loc,focus:tpl.focus,bodyWeight:state.draft.bodyWeight||"",energy:state.draft.energy||"",duration:state.draft.duration||"",exercises:tpl.ex.map(makeEx)};bindDraftToUI(false);save();toast("Template loaded and autosaved.")}
+function exerciseOptions(){const key=state.draft.location==="Home Workout"?"Home":"Gym";return libs[key].map(x=>`<option value="${x.join("|")}">${x[1]} — ${x[0]}</option>`).join("")}
+function addExercise(){const first=(state.draft.location==="Home Workout"?libs.Home:libs.Gym)[0];state.draft.exercises.push(makeEx([first[0],first[1],first[2],0,10,3]));save();toast("Exercise added.")}
+function exHTML(e){
+  const pv=plannedVolume(e), av=exVolume(e), prog=compareExercise(e), exp=e.expanded;
+  return `<div class="exercise-card">
+    <div class="exercise-summary">
+      <div><p class="item-title">${esc(e.name)}</p><p class="meta">${esc(e.group)} • ${esc(e.type)} • ${prog.label}</p></div>
+      <div><span class="label">Target</span><strong>${e.type==="cardio"?`${e.minutes}min ${e.incline}% ${e.speed}km/h`:`${e.weight}kg × ${e.targetReps} × ${e.plannedSets}`}</strong></div>
+      <div><span class="label">Actual</span><strong>${e.type==="cardio"?`${e.minutes}min`:`${(e.actualSets||[]).map(s=>s.reps).join("/")||"—"} reps`}</strong></div>
+      <div><span class="label">Volume</span><strong>${Math.round(av||pv)}kg</strong></div>
+      <button onclick="toggleEx('${e.id}')">${exp?"Collapse":"Edit"}</button>
+    </div>
+    <div class="${exp?"":"hide"}">
+      <div class="set-grid">
+        <label class="wide">Exercise<select onchange="changeExercise('${e.id}',this.value)"><option value="${e.name+'|'+e.group+'|'+e.type}">${e.group} — ${e.name}</option>${exerciseOptions()}</select></label>
+        <label>Weight kg<input type="number" step="0.5" value="${e.weight}" oninput="updateEx('${e.id}','weight',this.value)"></label>
+        <label>Target reps<input type="number" value="${e.targetReps}" oninput="updateEx('${e.id}','targetReps',this.value)"></label>
+        <label>Planned sets<input type="number" value="${e.plannedSets}" oninput="updateEx('${e.id}','plannedSets',this.value)"></label>
+        <label>Rest sec<input type="number" value="${e.rest}" oninput="updateEx('${e.id}','rest',this.value)"></label>
+        <label>RPE<input type="number" min="1" max="10" value="${e.rpe}" oninput="updateEx('${e.id}','rpe',this.value)"></label>
+        <label class="${e.type==="cardio"?"":"hide"}">Minutes<input type="number" value="${e.minutes}" oninput="updateEx('${e.id}','minutes',this.value)"></label>
+        <label class="${e.type==="cardio"?"":"hide"}">Incline %<input type="number" step="0.5" value="${e.incline}" oninput="updateEx('${e.id}','incline',this.value)"></label>
+        <label class="${e.type==="cardio"?"":"hide"}">Speed km/h<input type="number" step="0.1" value="${e.speed}" oninput="updateEx('${e.id}','speed',this.value)"></label>
       </div>
+      <h3 style="margin-top:14px">Actual sets</h3>
+      <div class="stack" style="margin-top:8px">${(e.actualSets||[]).map((s,idx)=>setHTML(e.id,idx,s)).join("")}</div>
+      <div class="actions" style="margin-top:10px"><button onclick="addSet('${e.id}')">+ Add actual set</button><button class="btn danger" onclick="deleteEx('${e.id}')">Delete exercise</button></div>
+    </div>
+  </div>`;
+}
+function setHTML(eid,idx,s){return `<div class="set-row"><label>Set ${idx+1} weight<input type="number" step="0.5" value="${s.weight}" oninput="updateSet('${eid}',${idx},'weight',this.value)"></label><label>Reps<input type="number" value="${s.reps}" oninput="updateSet('${eid}',${idx},'reps',this.value)"></label><button class="btn danger" onclick="deleteSet('${eid}',${idx})">Remove</button></div>`}
+function toggleEx(id){state.draft.exercises=state.draft.exercises.map(e=>e.id===id?{...e,expanded:!e.expanded}:e);save(false);render()}
+function updateEx(id,k,v){state.draft.exercises=state.draft.exercises.map(e=>e.id===id?{...e,[k]:v}:e);autosave()}
+function updateSet(id,idx,k,v){state.draft.exercises=state.draft.exercises.map(e=>e.id===id?{...e,actualSets:e.actualSets.map((s,i)=>i===idx?{...s,[k]:v}:s)}:e);autosave()}
+function addSet(id){state.draft.exercises=state.draft.exercises.map(e=>e.id===id?{...e,actualSets:[...(e.actualSets||[]),{weight:e.weight,reps:e.targetReps}]}:e);save()}
+function deleteSet(id,idx){state.draft.exercises=state.draft.exercises.map(e=>e.id===id?{...e,actualSets:e.actualSets.filter((_,i)=>i!==idx)}:e);save()}
+function deleteEx(id){if(confirm("Delete exercise?")){state.draft.exercises=state.draft.exercises.filter(e=>e.id!==id);save()}}
+function changeExercise(id,val){const [name,group,type]=val.split("|");state.draft.exercises=state.draft.exercises.map(e=>e.id===id?{...e,name,group,type}:e);save()}
+function compareExercise(e){
+  const previous=state.workouts.flatMap(w=>(w.exercises||[]).filter(x=>x.name===e.name).map(x=>({date:w.date,vol:exVolume(x)||plannedVolume(x),x}))).slice(-1)[0];
+  const current=exVolume(e)||plannedVolume(e);
+  if(!previous)return{label:"Baseline only",delta:0};
+  const delta=current-previous.vol;
+  if(delta>0)return{label:`Improving +${Math.round(delta)}kg volume`,delta};
+  if(delta<0)return{label:`Declining ${Math.round(delta)}kg volume`,delta};
+  return{label:"Flat vs last time",delta:0};
+}
+function trainerVerdict(){
+  const t=totals(state.draft), names=state.draft.exercises.map(e=>e.name).join(" "), groups=t.groups;
+  if(!state.draft.exercises.length)return["No plan yet","Choose a template or add exercise. A blank workout is not a plan.","Start with a template, then adjust actual sets."];
+  if(/Chest/.test(state.draft.focus)&&!(groups.Back>0))return["Push-heavy warning","Chest day has no real pulling support. Shoulder pain will send the invoice later.","Add face pull, row, or rear delt work."];
+  if((groups.Legs||0)===0&&state.workouts.slice(-4).every(w=>!(totals(w).groups.Legs>0)))return["Legs neglected","Leg work is missing again. This is not a balanced programme.","Train legs next session or add a leg movement today."];
+  if(t.sets<8)return["Too little volume","This session is light. Acceptable only for recovery or severe time limit.","Add useful sets or mark it recovery."];
+  if(t.sets>28)return["Too much volume","More work is not automatically more progress. Recovery must pay the bill.","Cut junk sets. Keep clean hard sets."];
+  return["Session structure acceptable","Plan is usable. Progress comes from repeating and improving, not random heroic sessions.","Finish Workout when actual sets are logged."];
+}
+function finishWorkout(){
+  if(!state.draft.exercises.length){toast("Add exercises before finishing.");return}
+  const rec=structuredClone(state.draft);rec.id=uid();rec.date=today();rec.status="Completed";rec.finishedAt=new Date().toISOString();
+  state.workouts.push(rec);state.draft={id:uid(),date:today(),status:"Draft",location:rec.location,focus:rec.focus,bodyWeight:rec.bodyWeight,energy:"",duration:"",exercises:[]};
+  save();toast("Workout finished. Progress updated.");syncToGoogleSheets("finish_workout");switchView("workout");
+}
+function finishedSummary(w){
+  const t=totals(w);let best=bestImprovement(w);return `<div class="item"><p class="item-title">Workout Completed</p><p class="meta">${w.date} • ${w.location} • ${w.focus}</p><div class="badges"><span class="badge cyan">${t.exercises} exercises</span><span class="badge">${t.sets} sets</span><span class="badge safe">${Math.round(t.actual)}kg volume</span><span class="badge warn">${t.cardio} min cardio</span></div></div><div class="item"><p class="item-title">Progress Check</p><p class="meta">${esc(best)}</p></div>`;
+}
+function bestImprovement(w){const arr=(w.exercises||[]).map(e=>compareFinished(e,w)).filter(x=>x.delta!==0).sort((a,b)=>b.delta-a.delta);if(!arr.length)return"Baseline or flat session. Repeat cleanly before increasing weight.";const b=arr[0];return b.delta>0?`${b.name} improved by +${Math.round(b.delta)}kg volume. Good. Do not rush weight; own the reps first.`:`${b.name} declined. Could be fatigue, sleep, or poor recovery. Do not ego-lift next session.`}
+function compareFinished(e,w){const prev=state.workouts.filter(x=>x.id!==w.id).flatMap(x=>(x.exercises||[]).filter(y=>y.name===e.name).map(y=>({vol:exVolume(y)||plannedVolume(y)}))).slice(-1)[0];const cur=exVolume(e)||plannedVolume(e);return{name:e.name,delta:prev?cur-prev.vol:0,cur,prev:prev?.vol||0}}
+function clearDraft(){if(confirm("Clear current draft?")){state.draft={...defaultState.draft,id:uid(),date:today()};save()}}
 
-      <div id="reviewLog" class="review-log"></div>
-    </section>
+function renderProgress(){
+  const names=[...new Set(state.workouts.flatMap(w=>(w.exercises||[]).map(e=>e.name)))];$("exerciseInspect").innerHTML=names.map(x=>`<option>${esc(x)}</option>`).join("")||"<option>No data</option>";
+  const selected=$("exerciseInspect").value||names[0];$("inspectTitle").textContent=selected||"No data";
+  const rows=state.workouts.flatMap(w=>(w.exercises||[]).filter(e=>e.name===selected).map(e=>({date:w.date,vol:exVolume(e)||plannedVolume(e),e})));
+  $("inspectTable").innerHTML=rows.length?rows.slice(-6).reverse().map((r,i)=>`<div class="item"><p class="item-title">${esc(r.date)} — ${Math.round(r.vol)}kg volume</p><p class="meta">${r.e.weight}kg target • actual reps ${(r.e.actualSets||[]).map(s=>s.reps).join("/")}</p></div>`).join(""):`<div class="item"><p class="meta">No saved workout yet. Finish a workout to generate progress.</p></div>`;
+  const groups={};state.workouts.filter(w=>daysAgo(w.date)<=7).forEach(w=>{const g=totals(w).groups;Object.keys(g).forEach(k=>groups[k]=(groups[k]||0)+g[k])});
+  const max=Math.max(1,...Object.values(groups));$("muscleBars").innerHTML=Object.keys(groups).length?Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([g,v])=>`<div class="bar-row"><strong>${g}</strong><div class="bar-track"><div class="bar-fill" style="width:${v/max*100}%"></div></div><span>${Math.round(v)}</span></div>`).join(""):`<div class="item"><p class="meta">No weekly muscle data.</p></div>`;
+}
+function daysAgo(d){return Math.floor((new Date(today())-new Date(d))/86400000)}
+function drawCharts(){
+  drawLine("volumeChart",state.workouts.slice(-14).map(w=>({label:w.date.slice(5),values:[totals(w).actual,totals(w).sets*100,totals(w).cardio*100]})),["Volume","Sets×100","Cardio×100"]);
+  const selected=$("exerciseInspect")?.value;const rows=state.workouts.flatMap(w=>(w.exercises||[]).filter(e=>e.name===selected).map(e=>({label:w.date.slice(5),values:[exVolume(e)||plannedVolume(e)]})));
+  drawLine("exerciseChart",rows,["Volume"]);
+}
+function drawLine(id,rows,labels){const c=$(id);if(!c)return;const ctx=c.getContext("2d"),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle="rgba(2,6,23,.35)";ctx.fillRect(0,0,w,h);ctx.strokeStyle="rgba(255,255,255,.08)";for(let i=1;i<5;i++){ctx.beginPath();ctx.moveTo(36,i*h/5);ctx.lineTo(w-12,i*h/5);ctx.stroke()}const colors=["#a855f7","#22c55e","#22d3ee","#f59e0b"];const max=Math.max(10,...rows.flatMap(r=>r.values));labels.forEach((l,li)=>{ctx.fillStyle=colors[li];ctx.fillRect(42+li*120,14,10,10);ctx.fillStyle="#cbd5e1";ctx.font="12px system-ui";ctx.fillText(l,58+li*120,24)});labels.forEach((l,li)=>{ctx.strokeStyle=colors[li];ctx.lineWidth=3;ctx.beginPath();rows.forEach((r,i)=>{const x=42+i*((w-70)/Math.max(1,rows.length-1));const y=h-28-(n(r.values[li])/max)*(h-62);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke()})}
 
-    <section class="panel settings">
-      <div class="section-title">
-        <div>
-          <p class="eyebrow">Android Use</p>
-          <h2>Phone Reminder Setup</h2>
-        </div>
-      </div>
-      <ol>
-        <li>Open this app in <strong>Chrome on Android</strong>.</li>
-        <li>Tap the Chrome <strong>three-dot menu</strong>.</li>
-        <li>Tap <strong>Add to Home screen</strong>.</li>
-        <li>Use each task’s <strong>Google Calendar</strong> button to create phone reminders.</li>
-      </ol>
-      <p class="subtle">This version does not directly control the Android Clock alarm. It uses Google Calendar reminders, which are safer and more reliable for the first version.</p>
-    </section>
-  </main>
+function renderNutrition(){
+  const p=todayProtein(),w=todayWater(),pct=Math.min(100,Math.round(w/state.settings.waterTarget*100));
+  $("proteinNow").textContent=p+"g";$("proteinRemain").textContent=Math.max(0,state.settings.proteinTarget-p)+"g";$("mealCount").textContent=state.meals.filter(m=>m.date===today()).length;
+  $("mealList").innerHTML=state.meals.filter(m=>m.date===today()).map(m=>`<div class="item"><p class="item-title">${esc(m.food)} — ${m.protein}g</p><p class="meta">${m.time} • ${m.type}</p><div class="actions"><button class="btn danger" onclick="deleteMeal('${m.id}')">Delete</button></div></div>`).join("")||`<div class="item"><p class="meta">No meal logged. Protein will not track itself.</p></div>`;
+  $("waterPct").textContent=pct+"%";$("waterDonut").style.background=`conic-gradient(var(--green) ${pct*3.6}deg,rgba(255,255,255,.09) 0deg)`;
+  $("waterComment").textContent=w>=state.settings.waterTarget?"Plain water target achieved. No need to force extra.":w>=state.settings.waterTarget*.7?"Almost there. Finish properly.":"Plain water is low. Coffee does not count.";
+  $("waterReward").textContent=w>=state.settings.waterTarget?"Good boy. Water target achieved.":"Remaining "+Math.max(0,state.settings.waterTarget-w)+"ml";
+  $("waterLog").innerHTML=state.water.filter(x=>x.date===today()).map(x=>`<div class="item"><p class="item-title">${x.amount}ml</p><p class="meta">${x.time}</p><div class="actions"><button class="btn danger" onclick="deleteWater('${x.id}')">Delete</button></div></div>`).join("")||`<div class="item"><p class="meta">No plain water logged.</p></div>`;
+}
+function addMeal(){const food=prompt("What did you eat?");if(!food)return;const protein=prompt("Protein grams?","25")||0;const type=prompt("Meal type?","Lunch")||"Meal";state.meals.push({id:uid(),date:today(),time:time(),food,protein,type});save()}
+function deleteMeal(id){state.meals=state.meals.filter(m=>m.id!==id);save()}
+function addWater(ml){state.water.push({id:uid(),date:today(),time:time(),amount:ml});save();toast("Water saved.")}
+function deleteWater(id){state.water=state.water.filter(w=>w.id!==id);save()}
 
-  <footer class="footer">
-    <span>Local-first app. Data is stored in this browser using LocalStorage.</span>
-    <button id="exportBtn" class="ghost">Export Data</button>
-    <button id="importBtn" class="ghost">Import Data</button>
-    <input id="importFile" type="file" accept="application/json" class="hidden" />
-  </footer>
+function renderTasks(){
+  $("taskList").innerHTML=state.tasks.length?state.tasks.map(taskHTML).join(""):`<div class="item"><p class="meta">No tasks. Add one P1 task or stop pretending the dashboard is the work.</p></div>`;
+}
+function taskHTML(t){return `<div class="item"><div class="item-head"><div><p class="item-title">${esc(t.title)}</p><p class="meta">${esc(t.project)} • ${esc(t.priority)} • ${esc(t.date)}</p></div></div><div class="badges"><span class="badge ${t.status==="Done"?"safe":"cyan"}">${t.status}</span>${t.top3?'<span class="badge warn">Top 3</span>':""}</div><div class="actions"><button onclick="toggleTask('${t.id}')">${t.status==="Done"?"Undo":"Done"}</button><button onclick="topTask('${t.id}')">Top 3</button><button class="btn danger" onclick="deleteTask('${t.id}')">Delete</button></div></div>`}
+function addTask(){const title=prompt("Task title");if(!title)return;state.tasks.push({id:uid(),title,project:"General",priority:"P2 Important",status:"Not Started",date:today(),top3:false});save()}
+function toggleTask(id){state.tasks=state.tasks.map(t=>t.id===id?{...t,status:t.status==="Done"?"Not Started":"Done"}:t);save()}
+function topTask(id){state.tasks=state.tasks.map(t=>t.id===id?{...t,top3:!t.top3}:t);save()}
+function deleteTask(id){state.tasks=state.tasks.filter(t=>t.id!==id);save()}
+function autoTop3(){const ids=new Set(state.tasks.filter(t=>t.status!=="Done").slice(0,3).map(t=>t.id));state.tasks=state.tasks.map(t=>({...t,top3:ids.has(t.id)}));save()}
 
-  <script src="app.js"></script>
+
+async function syncToGoogleSheets(reason="manual_sync"){
+  const url=(state.settings.syncUrl||"").trim();
+  if(!url){
+    state.settings.syncStatus="No sync URL saved.";
+    localStorage.setItem(KEY,JSON.stringify(state));
+    renderSettings();
+    toast("Paste and save the sync URL first.");
+    return;
+  }
+  state.settings.syncStatus="Syncing...";
+  localStorage.setItem(KEY,JSON.stringify(state));
+  renderSettings();
+  const payload={
+    source:"Nelson Command Centre V2.3",
+    action:reason,
+    notes:"Level 1 JSON backup sync from webpage app",
+    data:{
+      exportedAt:new Date().toISOString(),
+      settings:state.settings,
+      draft:state.draft,
+      workouts:state.workouts,
+      meals:state.meals,
+      water:state.water,
+      tasks:state.tasks
+    }
+  };
+  try{
+    await fetch(url,{
+      method:"POST",
+      mode:"no-cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify(payload)
+    });
+    state.settings.lastSync=new Date().toISOString();
+    state.settings.syncStatus="Synced to Google Sheets / request sent";
+    localStorage.setItem(KEY,JSON.stringify(state));
+    showSaved();
+    renderSettings();
+    toast("Sync sent. Check SyncLog.");
+  }catch(err){
+    state.settings.syncStatus="Sync failed — saved locally only";
+    localStorage.setItem(KEY,JSON.stringify(state));
+    renderSettings();
+    toast("Sync failed. Data is still saved locally.");
+  }
+}
+
+function renderSettings(){
+  $("s_protein").value=state.settings.proteinTarget;
+  $("s_water").value=state.settings.waterTarget;
+  $("s_coach").value=state.settings.coach;
+  if($("s_syncUrl")) $("s_syncUrl").value=state.settings.syncUrl||"";
+  if($("syncStatusText")) $("syncStatusText").textContent=state.settings.syncStatus||"Not connected yet.";
+  if($("lastSyncText")) $("lastSyncText").textContent=state.settings.lastSync ? "Last sync: "+new Date(state.settings.lastSync).toLocaleString() : "Last sync: never";
+}
+function saveSettings(){state.settings.proteinTarget=n($("s_protein").value)||130;state.settings.waterTarget=n($("s_water").value)||2300;state.settings.coach=$("s_coach").value;save();toast("Settings saved.")}
+function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`ncc-v22-backup-${today()}.json`;a.click()}
+function importData(file){const r=new FileReader();r.onload=()=>{try{state=merge(defaultState,JSON.parse(r.result));save();toast("Imported.")}catch{alert("Invalid backup file.")}};r.readAsText(file)}
+
+function copyPrompt(){const recent=state.workouts.slice(-3).map(w=>`${w.date} ${w.focus}`).join("; ");const prompt=`Act as my strict personal trainer. Recent workouts: ${recent||"none"}. Current draft location: ${state.draft.location}. Focus: ${state.draft.focus}. Energy: ${state.draft.energy||"3"}/5. Create today's workout with exercises, sets, reps, weights, rest, progression rule. Use a practical tone; do not please me.`;navigator.clipboard.writeText(prompt).then(()=>toast("Workout prompt copied."))}
+function init(){
+  ["location","focus","bodyWeight","energy","duration","status"].forEach(k=>{$("d_"+k).oninput=()=>bindDraftToUI(true);$("d_"+k).onchange=()=>bindDraftToUI(true)});
+  $("addEx").onclick=addExercise;$("finishWorkout").onclick=finishWorkout;$("clearDraft").onclick=clearDraft;$("copyPrompt").onclick=copyPrompt;
+  $("addMeal").onclick=addMeal;document.querySelectorAll(".water").forEach(b=>b.onclick=()=>addWater(b.dataset.ml));
+  $("addTask").onclick=addTask;$("autoTop3").onclick=autoTop3;$("saveSettings").onclick=saveSettings;$("saveSyncUrl").onclick=()=>{state.settings.syncUrl=$("s_syncUrl").value.trim();state.settings.syncStatus=state.settings.syncUrl?"Sync URL saved. Ready to sync.":"No sync URL saved.";save();toast("Sync URL saved.")};$("syncNow").onclick=()=>syncToGoogleSheets("manual_sync");$("exportBtn").onclick=exportData;$("importBtn").onclick=()=>$("importFile").click();$("importFile").onchange=e=>{if(e.target.files[0])importData(e.target.files[0])};$("resetBtn").onclick=()=>{if(confirm("Reset local data? Export backup first.")){state=structuredClone(defaultState);save()}};
+  $("exerciseInspect").onchange=()=>{renderProgress();drawCharts()};
+  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();window.deferredPrompt=e;$("installBtn").classList.remove("hide")});$("installBtn").onclick=async()=>{if(window.deferredPrompt){window.deferredPrompt.prompt();await window.deferredPrompt.userChoice;$("installBtn").classList.add("hide")}};
+  if(!state.draft.exercises.length)loadTemplate(0);else render();
+}
+init();
+</script>
 </body>
 </html>
