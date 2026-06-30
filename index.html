@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nelson Command Centre</title>
+  <meta name="theme-color" content="#0f766e" />
+  <meta name="description" content="Personal task, countdown, calendar and daily review command centre." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Personal Workload System</p>
+      <h1>Nelson Command Centre</h1>
+      <p class="subtle">Tasks • Countdown • Google Calendar • Daily Review</p>
+    </div>
+    <button id="installBtn" class="ghost hidden">Install</button>
+  </header>
+
+  <main class="container">
+    <section class="status-grid">
+      <article class="status-card">
+        <span class="label">Workload</span>
+        <strong id="workloadStatus">Normal</strong>
+        <small id="workloadHint">No critical task detected.</small>
+      </article>
+      <article class="status-card">
+        <span class="label">Today</span>
+        <strong id="todayCount">0</strong>
+        <small>tasks due today</small>
+      </article>
+      <article class="status-card">
+        <span class="label">Overdue</span>
+        <strong id="overdueCount">0</strong>
+        <small>needs damage control</small>
+      </article>
+      <article class="status-card">
+        <span class="label">Done</span>
+        <strong id="doneCount">0</strong>
+        <small>completed tasks</small>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Focus</p>
+          <h2>Today’s Top 3</h2>
+        </div>
+        <button id="autoTop3Btn" class="secondary">Auto-select</button>
+      </div>
+      <div id="top3List" class="task-list empty-box">No Top 3 selected yet.</div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Capture</p>
+          <h2>Add / Edit Task</h2>
+        </div>
+        <button id="resetFormBtn" class="ghost">Clear</button>
+      </div>
+
+      <form id="taskForm" class="task-form">
+        <input type="hidden" id="taskId" />
+
+        <label>
+          Task title
+          <input id="title" required placeholder="Example: Complete HRDC course outline 1" />
+        </label>
+
+        <div class="two-col">
+          <label>
+            Project
+            <select id="project"></select>
+          </label>
+
+          <label>
+            Category
+            <select id="category"></select>
+          </label>
+        </div>
+
+        <div class="two-col">
+          <label>
+            Priority
+            <select id="priority">
+              <option value="P1 Fire">P1 Fire</option>
+              <option value="P2 Important">P2 Important</option>
+              <option value="P3 Scheduled">P3 Scheduled</option>
+              <option value="P4 Later">P4 Later</option>
+              <option value="P5 Someday">P5 Someday</option>
+            </select>
+          </label>
+
+          <label>
+            Status
+            <select id="status">
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Blocked">Blocked</option>
+              <option value="Review Needed">Review Needed</option>
+              <option value="Done">Done</option>
+              <option value="Deferred">Deferred</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="two-col">
+          <label>
+            Deadline date
+            <input id="deadlineDate" type="date" />
+          </label>
+
+          <label>
+            Deadline time
+            <input id="deadlineTime" type="time" value="23:59" />
+          </label>
+        </div>
+
+        <div class="two-col">
+          <label>
+            Estimated hours
+            <input id="estimatedHours" type="number" min="0" step="0.25" placeholder="2" />
+          </label>
+
+          <label>
+            Actual hours
+            <input id="actualHours" type="number" min="0" step="0.25" placeholder="1.5" />
+          </label>
+        </div>
+
+        <label>
+          Next smallest action
+          <input id="nextAction" placeholder="Example: Draft learning outcomes and module table" />
+        </label>
+
+        <label>
+          Notes
+          <textarea id="notes" rows="3" placeholder="Files needed, remarks, blockers, links..."></textarea>
+        </label>
+
+        <div class="form-actions">
+          <button type="submit" class="primary">Save Task</button>
+          <button type="button" id="seedBtn" class="secondary">Load Your Current Tasks</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Control</p>
+          <h2>Countdown Warning Centre</h2>
+        </div>
+      </div>
+
+      <div class="filters">
+        <button class="filter active" data-filter="all">All</button>
+        <button class="filter" data-filter="today">Today</button>
+        <button class="filter" data-filter="overdue">Overdue</button>
+        <button class="filter" data-filter="critical">Critical</button>
+        <button class="filter" data-filter="P1 Fire">P1</button>
+        <button class="filter" data-filter="Done">Done</button>
+      </div>
+
+      <div id="taskList" class="task-list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Projects</p>
+          <h2>Progress Tracker</h2>
+        </div>
+      </div>
+      <div id="projectProgress" class="progress-list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Closure</p>
+          <h2>Daily Review</h2>
+        </div>
+        <button id="saveReviewBtn" class="primary small">Save Review</button>
+      </div>
+
+      <div class="review-grid">
+        <label>
+          Completed today
+          <textarea id="reviewDone" rows="3"></textarea>
+        </label>
+        <label>
+          Still stuck
+          <textarea id="reviewStuck" rows="3"></textarea>
+        </label>
+        <label>
+          Tomorrow’s Top 3
+          <textarea id="reviewTop3" rows="3"></textarea>
+        </label>
+        <label>
+          What to postpone / stop
+          <textarea id="reviewStop" rows="3"></textarea>
+        </label>
+      </div>
+
+      <div id="reviewLog" class="review-log"></div>
+    </section>
+
+    <section class="panel settings">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Android Use</p>
+          <h2>Phone Reminder Setup</h2>
+        </div>
+      </div>
+      <ol>
+        <li>Open this app in <strong>Chrome on Android</strong>.</li>
+        <li>Tap the Chrome <strong>three-dot menu</strong>.</li>
+        <li>Tap <strong>Add to Home screen</strong>.</li>
+        <li>Use each task’s <strong>Google Calendar</strong> button to create phone reminders.</li>
+      </ol>
+      <p class="subtle">This version does not directly control the Android Clock alarm. It uses Google Calendar reminders, which are safer and more reliable for the first version.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Local-first app. Data is stored in this browser using LocalStorage.</span>
+    <button id="exportBtn" class="ghost">Export Data</button>
+    <button id="importBtn" class="ghost">Import Data</button>
+    <input id="importFile" type="file" accept="application/json" class="hidden" />
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

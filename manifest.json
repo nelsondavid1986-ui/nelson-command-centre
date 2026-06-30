@@ -1,0 +1,10 @@
+{
+  "name": "Nelson Command Centre",
+  "short_name": "Command Centre",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#eef7f5",
+  "theme_color": "#0f766e",
+  "description": "Personal task, countdown and calendar tracker.",
+  "icons": []
+}
