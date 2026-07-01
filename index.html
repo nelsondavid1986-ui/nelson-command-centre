@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>Nelson Command Centre V2.6.5 Final.1 — Dashboard Hotfix</title>
+<title>Nelson Command Centre V2.6.5.2.1 — Dashboard Hotfix</title>
 <meta name="theme-color" content="#070611" />
 <style>
 :root{
@@ -107,15 +107,43 @@ input:focus,select:focus,textarea:focus{border-color:rgba(34,211,238,.55);box-sh
 @media(max-width:900px){.profile-strip,.workout-ring-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:680px){.profile-strip,.workout-ring-grid{grid-template-columns:1fr}}
 
+
+/* V2.6.5.2 mobile workout hotfix:
+   On phone, the workout dashboard must be a normal top card, not a floating overlay.
+   This prevents the set/exercise controls from scrolling behind it and becoming untickable. */
+@media(max-width:680px){
+  .workout-status-panel{
+    position:relative !important;
+    top:auto !important;
+    z-index:1 !important;
+    margin-top:12px !important;
+    margin-bottom:14px !important;
+    backdrop-filter:none;
+  }
+  #workout .grid.five,
+  #workout .grid.two,
+  #exerciseList{
+    position:relative;
+    z-index:2;
+  }
+  #exerciseList .exercise,
+  #exerciseList .card,
+  #exerciseList input,
+  #exerciseList select,
+  #exerciseList button{
+    pointer-events:auto;
+  }
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header class="hero">
   <div>
-    <p class="eyebrow">V2.6.5 Final Stable Build</p>
-    <h1>Nelson Command Centre V2.6.5 Final</h1>
-    <p class="muted">Stable dashboard • fixed render • surplus sync • workout rings • food / water / protein / task / appointment modules</p>
+    <p class="eyebrow">V2.6.5.2 Mobile Workout Hotfix</p>
+    <h1>Nelson Command Centre V2.6.5.2</h1>
+    <p class="muted">Mobile workout fix • no overlay dashboard • stable rings • surplus sync • food / water / protein / task / appointment modules</p>
   </div>
   <div class="actions"><span id="saveStatus" class="save-pill"><span class="save-dot"></span>Saved locally</span><button class="btn primary" onclick="saveManual('whole app')">Save Locally</button><button class="btn green" onclick="saveAndSync('header_save_sync')">Save + Sync</button></div>
 </header>
@@ -577,7 +605,7 @@ function drawPie(id,cur,target,label){const c=$(id);if(!c)return;const ctx=c.get
 function drawTaskDeadlineChart(){const c=$("taskDeadlineChart");if(!c)return;const ctx=c.getContext("2d"),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle="rgba(255,255,255,.025)";ctx.fillRect(0,0,w,h);const tasks=sortedTasks().filter(t=>t.status!=="Done").slice(0,8);ctx.strokeStyle="rgba(255,255,255,.12)";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(40,h/2);ctx.lineTo(w-40,h/2);ctx.stroke();ctx.fillStyle="#a8b3c7";ctx.font="12px system-ui";ctx.fillText("Today",40,h/2+28);ctx.fillText("Later",w-80,h/2+28);if(!tasks.length){ctx.fillText("No pending deadlines.",w/2-50,h/2-15);return}const now=new Date(today()).getTime();const maxDays=Math.max(1,...tasks.map(t=>Math.max(0,(new Date(t.dueDate).getTime()-now)/86400000)));tasks.forEach((t,i)=>{const days=Math.max(0,(new Date(t.dueDate).getTime()-now)/86400000);const x=40+days/maxDays*(w-80),y=h/2+(i%2?34:-34);ctx.fillStyle=priorityRank(t.urgency)===1?"#ef4444":priorityRank(t.urgency)===2?"#f59e0b":"#22d3ee";ctx.beginPath();ctx.arc(x,h/2,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle="rgba(255,255,255,.16)";ctx.beginPath();ctx.moveTo(x,h/2);ctx.lineTo(x,y);ctx.stroke();ctx.fillStyle="#e2e8f0";ctx.fillText(t.title.slice(0,24),Math.min(x,w-190),y+(i%2?18:-8));ctx.fillStyle="#a8b3c7";ctx.fillText(`${t.dueDate} • ${n(t.progress)}%`,Math.min(x,w-190),y+(i%2?34:8))})}
 function renderSettings(){fillSelect("s_coach",coachModes);if($("s_protein")){$("s_protein").value=state.settings.proteinTarget;$("s_water").value=state.settings.waterTarget;$("s_waterPerKg").value=state.settings.waterPerKg;$("s_autoWater").value=String(!!state.settings.autoWater);$("s_workoutExtra").value=state.settings.workoutExtraWater;$("s_coach").value=state.settings.coach;$("s_syncUrl").value=state.settings.syncUrl||"";$("syncStatusText").textContent=state.settings.syncStatus||"Not connected";$("lastSyncText").textContent=state.settings.lastSync?"Last sync: "+new Date(state.settings.lastSync).toLocaleString():"Last sync: never";$("unsyncedText").textContent=`Unsynced changes: ${state.settings.unsyncedChanges||0}. Last local save: ${state.settings.lastLocalSave?new Date(state.settings.lastLocalSave).toLocaleString():"never"}`}}
 function saveSettings(){state.settings.proteinTarget=n($("s_protein").value)||125;state.settings.waterTarget=n($("s_water").value)||2300;state.settings.waterPerKg=n($("s_waterPerKg").value)||35;state.settings.autoWater=$("s_autoWater").value==="true";state.settings.workoutExtraWater=n($("s_workoutExtra").value)||500;state.settings.coach=$("s_coach").value;save(true)}
-async function syncToGoogleSheets(reason="manual_sync"){const url=(state.settings.syncUrl||"").trim();if(!url){state.settings.syncStatus="No sync URL saved.";localStorage.setItem(KEY,JSON.stringify(state));renderSettings();toast("Paste and save the sync URL first.");return}state.settings.syncStatus="Syncing...";localStorage.setItem(KEY,JSON.stringify(state));renderSettings();const payload={source:"Nelson Command Centre V2.6.5 Final",action:reason,notes:"Level 1 JSON backup; V2.6.5 Final stable build with fixed render chain, surplus dashboard, workout rings, blue water dashboard, protein dashboard, task and appointment modules",data:{exportedAt:new Date().toISOString(),settings:state.settings,body:state.body,draft:state.draft,workouts:state.workouts,meals:state.meals,water:state.water,tasks:state.tasks,appointments:state.appointments||[],coach:state.coach,sim:state.sim}};try{await fetch(url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});state.settings.lastSync=new Date().toISOString();state.settings.unsyncedChanges=0;state.settings.syncStatus="Synced to Google Sheets / request sent";localStorage.setItem(KEY,JSON.stringify(state));showSaved();renderSettings();toast("Sync sent. Check SyncLog.")}catch(err){state.settings.syncStatus="Sync failed — saved locally only";localStorage.setItem(KEY,JSON.stringify(state));renderSettings();toast("Sync failed. Data saved locally.")}}
+async function syncToGoogleSheets(reason="manual_sync"){const url=(state.settings.syncUrl||"").trim();if(!url){state.settings.syncStatus="No sync URL saved.";localStorage.setItem(KEY,JSON.stringify(state));renderSettings();toast("Paste and save the sync URL first.");return}state.settings.syncStatus="Syncing...";localStorage.setItem(KEY,JSON.stringify(state));renderSettings();const payload={source:"Nelson Command Centre V2.6.5.2",action:reason,notes:"Level 1 JSON backup; V2.6.5.2 mobile workout hotfix: workout dashboard is no longer a floating overlay on phone; set tick controls remain clickable",data:{exportedAt:new Date().toISOString(),settings:state.settings,body:state.body,draft:state.draft,workouts:state.workouts,meals:state.meals,water:state.water,tasks:state.tasks,appointments:state.appointments||[],coach:state.coach,sim:state.sim}};try{await fetch(url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});state.settings.lastSync=new Date().toISOString();state.settings.unsyncedChanges=0;state.settings.syncStatus="Synced to Google Sheets / request sent";localStorage.setItem(KEY,JSON.stringify(state));showSaved();renderSettings();toast("Sync sent. Check SyncLog.")}catch(err){state.settings.syncStatus="Sync failed — saved locally only";localStorage.setItem(KEY,JSON.stringify(state));renderSettings();toast("Sync failed. Data saved locally.")}}
 function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`ncc-v261-backup-${today()}.json`;a.click()}
 function importData(file){const r=new FileReader();r.onload=()=>{try{state=merge(defaultState,JSON.parse(r.result));normalizeState();save(true);toast("Imported.")}catch{alert("Invalid backup file.")}};r.readAsText(file)}
 function copyPrompt(){const tw=totals(todayWorkoutSource());const prompt=`Act as my ${state.settings.coach}. Review this Nelson Command Centre data. Give Daily Verdict, Workout Review, Exercise Completion Review, Nutrition Review, Water Review, Body/BMI/Goal Review, Task Review, Risk Warning, Next Best Actions, Tomorrow Recommendation. Data: sets ${tw.completedSets}/${tw.plannedSets}, left ${tw.leftSets}, volume ${Math.round(tw.actual)}kg, protein ${todayProtein()}/${state.settings.proteinTarget}g, water ${todayWater()}/${waterTarget()}ml, body ${state.body.weightKg}kg at ${state.body.bodyFatPct}% body fat, lean mass ${leanMass().toFixed(1)}kg, muscle mass proxy ${muscleMassEstimate()}kg, goal ${state.body.goal}, tasks ${todayTaskStats().done}/${todayTaskStats().total}, readiness ${state.draft.energy}/5, synced today ${lastSyncToday()}. Be specific and practical.`;state.coach.lastPrompt=prompt;save(true);navigator.clipboard.writeText(prompt).then(()=>toast("Coach prompt copied."))}
