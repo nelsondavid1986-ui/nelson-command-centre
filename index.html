@@ -3,524 +3,598 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>Nelson Command Centre V2.3 — Google Sheets Sync</title>
+<title>Nelson Command Centre V2.6.5 Final.1 — Dashboard Hotfix</title>
 <meta name="theme-color" content="#070611" />
 <style>
 :root{
   --bg:#050510;--bg2:#090b1d;--violet:#7c3aed;--purple:#a855f7;--cyan:#22d3ee;--green:#22c55e;
-  --amber:#f59e0b;--red:#ef4444;--text:#f8fafc;--muted:#94a3b8;--panel:rgba(15,23,42,.74);
-  --panel2:rgba(30,27,75,.62);--line:rgba(168,85,247,.30);--line2:rgba(34,211,238,.22);
-  --radius:24px;--shadow:0 22px 70px rgba(0,0,0,.46);--glow:0 0 38px rgba(124,58,237,.28)
+  --amber:#f59e0b;--red:#ef4444;--blue:#3b82f6;--pink:#ec4899;--text:#f8fafc;--muted:#a8b3c7;
+  --panel:rgba(15,23,42,.76);--panel2:rgba(30,27,75,.62);--line:rgba(168,85,247,.30);--line2:rgba(34,211,238,.22);
+  --radius:24px;--shadow:0 22px 70px rgba(0,0,0,.46);--glow:0 0 38px rgba(124,58,237,.24)
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;min-height:100vh;color:var(--text);font-family:Inter,Roboto,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:
-    radial-gradient(circle at 9% 0%,rgba(124,58,237,.42),transparent 32%),
-    radial-gradient(circle at 96% 8%,rgba(34,197,94,.16),transparent 25%),
-    radial-gradient(circle at 9% 94%,rgba(168,85,247,.22),transparent 33%),
-    radial-gradient(circle at 92% 90%,rgba(34,211,238,.13),transparent 28%),
-    linear-gradient(135deg,#050510,#090b1d 45%,#1d0f3d);
-}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,Roboto,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:
+radial-gradient(circle at 9% 0%,rgba(124,58,237,.42),transparent 32%),
+radial-gradient(circle at 96% 8%,rgba(34,211,238,.20),transparent 25%),
+radial-gradient(circle at 9% 94%,rgba(236,72,153,.18),transparent 33%),
+radial-gradient(circle at 92% 90%,rgba(34,197,94,.13),transparent 28%),
+linear-gradient(135deg,#050510,#090b1d 45%,#1d0f3d)}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,#000,transparent)}
-.app{width:min(1240px,100%);margin:0 auto;padding:14px 14px 92px}
-.hero{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:32px;padding:22px;background:linear-gradient(135deg,rgba(15,23,42,.82),rgba(30,27,75,.56));box-shadow:var(--shadow),var(--glow);backdrop-filter:blur(22px);margin:4px 0 12px}
+.app{width:min(1280px,100%);margin:0 auto;padding:14px 14px 98px}
+.hero{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:32px;padding:22px;background:
+radial-gradient(circle at 10% 0%,rgba(0,245,212,.14),transparent 26%),
+radial-gradient(circle at 90% 15%,rgba(217,70,239,.18),transparent 28%),
+linear-gradient(135deg,rgba(6,12,28,.86),rgba(24,12,54,.62));box-shadow:var(--shadow),var(--glow);backdrop-filter:blur(22px);margin:4px 0 12px}
 .eyebrow{margin:0;text-transform:uppercase;letter-spacing:.14em;font-size:.72rem;font-weight:1000;color:#c4b5fd}
-h1,h2,h3{letter-spacing:-.04em}h1{font-size:clamp(1.55rem,5vw,2.85rem);line-height:1;margin:4px 0}h2{margin:4px 0 10px}h3{margin:0}
-.muted,.meta{color:var(--muted);line-height:1.45}.meta{font-size:.9rem}
-.save-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(34,211,238,.24);background:rgba(34,211,238,.09);color:#bfdbfe;border-radius:999px;padding:8px 11px;font-weight:900;white-space:nowrap}
-.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 14px rgba(34,197,94,.7)}
+h1,h2,h3{letter-spacing:-.04em}h1{font-size:clamp(1.55rem,5vw,2.85rem);line-height:1;margin:4px 0}h2{margin:4px 0 10px}h3{margin:0}.muted,.meta{color:var(--muted);line-height:1.45}.meta{font-size:.9rem}
 .nav{display:flex;gap:8px;overflow-x:auto;padding:8px;border-radius:999px;background:rgba(2,6,23,.45);border:1px solid rgba(255,255,255,.07);position:sticky;top:8px;z-index:5;backdrop-filter:blur(16px)}
-button,.btn{font:inherit;font-weight:900;cursor:pointer;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.06);color:var(--text);border-radius:999px;padding:10px 13px}
-.nav button{white-space:nowrap}.nav button.active{background:linear-gradient(135deg,var(--violet),var(--cyan));box-shadow:0 0 25px rgba(124,58,237,.36)}
-.btn.primary{background:linear-gradient(135deg,var(--violet),var(--cyan));box-shadow:0 0 24px rgba(124,58,237,.28)}
-.btn.green{background:linear-gradient(135deg,#16a34a,var(--green));color:#04130a}.btn.danger{background:linear-gradient(135deg,#991b1b,var(--red))}
+button,.btn{font:inherit;font-weight:900;cursor:pointer;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.06);color:var(--text);border-radius:999px;padding:10px 13px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+button:disabled{opacity:.45;cursor:not-allowed}.nav button{white-space:nowrap}.nav button.active{background:linear-gradient(135deg,var(--violet),var(--cyan));box-shadow:0 0 25px rgba(124,58,237,.36)}
+.btn.primary{background:linear-gradient(135deg,var(--violet),var(--cyan));box-shadow:0 0 24px rgba(124,58,237,.28)}.btn.green{background:linear-gradient(135deg,#16a34a,var(--green));color:#04130a}.btn.danger{background:linear-gradient(135deg,#991b1b,var(--red))}.btn.warn{background:linear-gradient(135deg,#92400e,var(--amber));color:#130b01}
+.save-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(34,211,238,.24);background:rgba(34,211,238,.09);color:#bfdbfe;border-radius:999px;padding:8px 11px;font-weight:900;white-space:nowrap}.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 14px rgba(34,197,94,.7)}
 .view{display:none;animation:fade .18s ease}.view.active{display:block}@keyframes fade{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.grid{display:grid;gap:14px}.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}.four{grid-template-columns:repeat(4,1fr)}
+.grid{display:grid;gap:14px}.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}.four{grid-template-columns:repeat(4,1fr)}.five{grid-template-columns:repeat(5,1fr)}
 .card{padding:18px;border-radius:var(--radius);border:1px solid var(--line);background:var(--panel);box-shadow:var(--shadow);backdrop-filter:blur(18px);position:relative;overflow:hidden}
-.card:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.06),transparent 35%)}
-.card>*{position:relative;z-index:1}.kpi strong{display:block;font-size:2rem;margin:3px 0}.label{display:block;color:var(--muted);font-weight:1000;text-transform:uppercase;letter-spacing:.08em;font-size:.74rem}
-.section-title{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.actions{display:flex;flex-wrap:wrap;gap:8px}.stack{display:grid;gap:10px}
-label{display:grid;gap:6px;font-size:.86rem;font-weight:900;color:#e2e8f0}
-input,select,textarea{width:100%;border:1px solid rgba(255,255,255,.12);background:rgba(2,6,23,.52);color:var(--text);border-radius:16px;padding:12px 13px;font:inherit;outline:none}
-textarea{resize:vertical}input:focus,select:focus,textarea:focus{border-color:rgba(34,211,238,.55);box-shadow:0 0 0 4px rgba(34,211,238,.10)}
+.card:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.055),transparent 36%,rgba(34,211,238,.035));opacity:.75}.card>*{position:relative;z-index:1}.kpi strong{display:block;font-size:2rem;margin:3px 0}.label{display:block;color:var(--muted);font-weight:1000;text-transform:uppercase;letter-spacing:.08em;font-size:.74rem}
+.section-title{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.actions{display:flex;flex-wrap:wrap;gap:8px}.stack{display:grid;gap:10px}.tab-save{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin:0 0 12px}
+label{display:grid;gap:6px;font-size:.86rem;font-weight:900;color:#e2e8f0}input,select,textarea{width:100%;border:1px solid rgba(255,255,255,.12);background:rgba(2,6,23,.72);color:var(--text);border-radius:16px;padding:12px 13px;font:inherit;outline:none}select option{background:#0f172a;color:#f8fafc}input[type="range"]{accent-color:var(--cyan);padding:8px 0}textarea{resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:rgba(34,211,238,.55);box-shadow:0 0 0 4px rgba(34,211,238,.10)}
 .form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.wide{grid-column:span 2}.full{grid-column:1/-1}
-.item{padding:14px;border-radius:18px;background:rgba(2,6,23,.38);border:1px solid rgba(255,255,255,.08)}
-.item-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.item-title{margin:0 0 5px;font-weight:1000}
-.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.badge{font-size:.72rem;font-weight:1000;border-radius:999px;padding:5px 8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08)}
-.safe{color:#86efac;background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.24)}.warn{color:#fcd34d;background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.24)}.bad{color:#fca5a5;background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.24)}.cyan{color:#67e8f9;background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.22)}
-.template-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.template{border-radius:18px;padding:13px;text-align:left;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);color:white}.template strong{display:block}.template small{color:var(--muted)}
-.exercise-card{border:1px solid rgba(168,85,247,.24);background:rgba(15,23,42,.58);border-radius:22px;padding:14px}
-.exercise-summary{display:grid;grid-template-columns:1.25fr .85fr .85fr .85fr auto;gap:10px;align-items:center}.exercise-summary button{padding:8px 10px}
-.set-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
-.set-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}.hide{display:none!important}
-.bar-row{display:grid;grid-template-columns:100px 1fr 72px;gap:8px;align-items:center}.bar-track{height:13px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}.bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--violet),var(--cyan))}
-.donut-wrap{display:flex;gap:18px;align-items:center}.donut{width:128px;height:128px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) 0deg,rgba(255,255,255,.09) 0deg);position:relative;box-shadow:0 0 35px rgba(34,197,94,.14)}.donut:before{content:"";position:absolute;width:84px;height:84px;border-radius:50%;background:rgba(2,6,23,.92)}.donut span{position:relative;font-weight:1000}
-canvas{width:100%;max-width:100%;background:rgba(2,6,23,.22);border:1px solid rgba(255,255,255,.06);border-radius:18px}
-.toast{position:fixed;right:14px;bottom:18px;background:rgba(15,23,42,.94);border:1px solid var(--line2);box-shadow:var(--shadow);border-radius:18px;padding:12px 14px;z-index:20;display:none}.toast.show{display:block;animation:pop .2s ease}@keyframes pop{from{transform:translateY(8px);opacity:.2}to{transform:none;opacity:1}}
-.bottom{display:none;position:fixed;left:10px;right:10px;bottom:10px;z-index:9;padding:8px;border-radius:24px;border:1px solid var(--line);background:rgba(2,6,23,.84);backdrop-filter:blur(18px);box-shadow:var(--shadow)}.bottom button{flex:1;border:0;background:transparent;color:#cbd5e1;padding:10px 7px;border-radius:16px;font-size:.82rem}.bottom button.active{background:rgba(124,58,237,.38);color:white}
-@media(max-width:940px){.two,.three,.four,.template-grid{grid-template-columns:1fr 1fr}.exercise-summary{grid-template-columns:1fr 1fr}.form-grid,.set-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:640px){.app{padding:10px 10px 86px}.hero{flex-direction:column;border-radius:24px}.nav{display:none}.bottom{display:flex}.two,.three,.four,.template-grid,.form-grid,.set-grid{grid-template-columns:1fr}.wide{grid-column:auto}.section-title,.item-head{flex-direction:column}.actions{display:grid;grid-template-columns:1fr 1fr}.actions .btn,button.btn{width:100%}.exercise-summary{grid-template-columns:1fr}.bar-row{grid-template-columns:82px 1fr 54px}.donut-wrap{flex-direction:column;align-items:flex-start}}
+.item{padding:14px;border-radius:18px;background:rgba(2,6,23,.38);border:1px solid rgba(255,255,255,.08)}.item-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.item-title{margin:0 0 5px;font-weight:1000}.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.badge{font-size:.72rem;font-weight:1000;border-radius:999px;padding:5px 8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);display:inline-flex}
+.safe{color:#86efac;background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.24)}.warn{color:#fcd34d;background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.24)}.bad{color:#fca5a5;background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.24)}.cyan{color:#67e8f9;background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.22)}.blue{color:#bfdbfe;background:rgba(59,130,246,.14);border-color:rgba(59,130,246,.24)}
+.v26-dashboard{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}.ring-card{min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at 50% 24%,rgba(34,211,238,.14),transparent 34%),linear-gradient(180deg,rgba(15,23,42,.78),rgba(8,9,25,.82))}
+.ring{--p:0;--c:#22d3ee;width:142px;height:142px;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(var(--c) calc(var(--p)*1%),rgba(255,255,255,.08) 0);box-shadow:0 0 28px rgba(34,211,238,.20),inset 0 0 20px rgba(255,255,255,.05)}
+.ring:before{content:"";position:absolute;inset:13px;border-radius:50%;background:linear-gradient(180deg,rgba(6,12,28,.94),rgba(10,14,32,.98));box-shadow:inset 0 0 18px rgba(255,255,255,.05)}.ring strong{position:relative;font-size:1.35rem;letter-spacing:-.05em;z-index:1}.ring-label{font-size:.77rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-top:10px}.ring-note{font-size:.86rem;color:#b6c2d7;margin:.4rem 0 0;max-width:220px}
+.ring.cyan{--c:#22d3ee}.ring.green{--c:#22c55e}.ring.blue{--c:#3b82f6}.ring.purple{--c:#a855f7}.ring.amber{--c:#f59e0b}
+.graph-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px}.graph-card{min-height:265px;background:linear-gradient(180deg,rgba(8,13,31,.84),rgba(6,8,22,.88))}.graph-card canvas{width:100%;height:190px;display:block;margin-top:8px;border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(34,211,238,.035))}
+.progress-row,.bar-row{display:grid;grid-template-columns:150px 1fr 90px;gap:10px;align-items:center}.bar-track{height:13px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}.bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--violet),var(--cyan))}.bar-fill.green{background:linear-gradient(90deg,#16a34a,var(--green))}.bar-fill.warn{background:linear-gradient(90deg,#b45309,var(--amber))}.bar-fill.bad{background:linear-gradient(90deg,#991b1b,var(--red))}
+.template-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.template{border-radius:18px;padding:13px;text-align:left;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);color:white}.template strong{display:block}
+.exercise-card{border:1px solid rgba(168,85,247,.24);background:rgba(15,23,42,.58);border-radius:22px;padding:14px}.set-row{display:grid;grid-template-columns:auto 1fr 1fr 1.4fr auto;gap:8px;align-items:end;margin-top:8px}.done-check{display:flex;align-items:center;gap:8px;padding:10px;border-radius:14px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);font-weight:1000}.done-check input{width:22px;height:22px;accent-color:var(--green)}
+.timeline-blocks{display:grid;gap:8px;margin-top:10px}.task-pill{display:grid;grid-template-columns:90px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(255,255,255,.045)}.task-pill.red{box-shadow:inset 4px 0 0 var(--red)}.task-pill.amber{box-shadow:inset 4px 0 0 var(--amber)}.task-pill.blue{box-shadow:inset 4px 0 0 var(--cyan)}.task-pill.purple{box-shadow:inset 4px 0 0 var(--purple)}.task-pill.green{box-shadow:inset 4px 0 0 var(--green)}
+.sim-panel{background:linear-gradient(135deg,rgba(168,85,247,.16),rgba(34,211,238,.08));border:1px solid rgba(34,211,238,.26)}.macro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.macro-grid .item h2{margin:0}
+.toast{position:fixed;right:14px;bottom:18px;background:rgba(15,23,42,.94);border:1px solid var(--line2);box-shadow:var(--shadow);border-radius:18px;padding:12px 14px;z-index:20;display:none}.toast.show{display:block;animation:pop .2s ease}@keyframes pop{from{transform:translateY(8px);opacity:.2}to{transform:none;opacity:1}}.hide{display:none!important}
+.bottom{display:none;position:fixed;left:10px;right:10px;bottom:10px;z-index:9;padding:8px;border-radius:24px;border:1px solid var(--line);background:rgba(2,6,23,.84);backdrop-filter:blur(18px);box-shadow:var(--shadow)}.bottom button{flex:1;border:0;background:transparent;color:#cbd5e1;padding:10px 7px;border-radius:16px;font-size:.78rem}.bottom button.active{background:rgba(124,58,237,.38);color:white}
+@media(max-width:980px){.two,.three,.four,.five,.template-grid,.macro-grid{grid-template-columns:1fr 1fr}.v26-dashboard{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}.ring-card{min-width:240px;scroll-snap-align:start}.graph-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.task-pill{grid-template-columns:1fr}.set-row{grid-template-columns:1fr 1fr}.bottom{grid-template-columns:repeat(5,1fr)}}
+@media(max-width:680px){.app{padding:10px 10px 88px}.hero{flex-direction:column;border-radius:24px}.nav{display:flex}.bottom{display:flex}.two,.three,.four,.five,.template-grid,.form-grid,.macro-grid{grid-template-columns:1fr}.wide{grid-column:auto}.section-title,.item-head{flex-direction:column}.actions{display:grid;grid-template-columns:1fr 1fr}.actions .btn,button.btn{width:100%}.progress-row,.bar-row{grid-template-columns:92px 1fr 64px}.set-row{grid-template-columns:1fr}}
+
+.water-dash{display:grid;grid-template-columns:220px 1fr;gap:14px;align-items:center}
+.pie-canvas{width:220px;height:220px;max-width:100%}
+.deadline-canvas{width:100%;height:250px;border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(34,211,238,.035))}
+.pause-chip{display:inline-flex;gap:6px;align-items:center;border-radius:999px;padding:6px 9px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.05);font-size:.76rem;color:#cbd5e1}
+.exercise-save-line{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
+@media(max-width:680px){.water-dash{grid-template-columns:1fr}.pie-canvas{margin:auto}}
+
+
+/* V2.6.3 UX hardening */
+.body-target-dashboard{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:stretch}
+.body-stackbar{height:32px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);display:flex;border:1px solid rgba(255,255,255,.09)}
+.body-stackbar span{display:block;height:100%}
+.body-stackbar .lean{background:linear-gradient(90deg,#22d3ee,#22c55e)}
+.body-stackbar .fat{background:linear-gradient(90deg,#ec4899,#f59e0b)}
+.target-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.live-slider-box{border:1px solid rgba(34,211,238,.35);background:rgba(34,211,238,.08);border-radius:18px;padding:12px;margin-top:8px}
+.live-num{font-size:1.6rem;font-weight:1000;letter-spacing:-.05em}
+.next-set-coach{border:1px solid rgba(34,197,94,.28);background:rgba(34,197,94,.10);border-radius:18px;padding:12px;margin-top:10px}
+.group-select-mini{min-width:140px}
+.calendar-warning{border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.10)}
+.mini-ring-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:880px){.body-target-dashboard,.target-card-grid,.mini-ring-row{grid-template-columns:1fr}}
+
+
+/* V2.6.4 workflow stabilisation */
+.next-action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.next-action-btn{border-radius:20px;padding:14px;border:1px solid rgba(34,211,238,.24);background:linear-gradient(135deg,rgba(34,211,238,.12),rgba(168,85,247,.12));font-weight:1000;text-align:left;color:#f8fafc}
+.next-action-btn small{display:block;color:#a8b3c7;margin-top:4px;font-weight:700}
+.sync-mode-box{border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.10)}
+.food-preview-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.task-edit-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;margin-top:10px}
+.appt-status{display:inline-flex;border-radius:999px;padding:5px 8px;font-size:.72rem;font-weight:1000;border:1px solid rgba(255,255,255,.09)}
+.appt-upcoming{background:rgba(34,211,238,.12);color:#67e8f9}.appt-done{background:rgba(34,197,94,.14);color:#86efac}.appt-cancelled{background:rgba(239,68,68,.14);color:#fca5a5}.appt-postponed{background:rgba(245,158,11,.14);color:#fcd34d}
+.workout-status-panel{position:sticky;top:74px;z-index:4;margin-top:14px;border:1px solid rgba(34,211,238,.28);background:linear-gradient(135deg,rgba(2,6,23,.88),rgba(30,27,75,.76));backdrop-filter:blur(16px)}
+.formula-small{font-size:.82rem;color:#cbd5e1;line-height:1.45}
+@media(max-width:920px){.next-action-grid,.food-preview-grid{grid-template-columns:1fr 1fr}.task-edit-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.next-action-grid,.food-preview-grid,.task-edit-grid{grid-template-columns:1fr}.workout-status-panel{top:8px}}
+
+
+/* V2.6.5 surplus + workout dashboard */
+.profile-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.surplus-card{border-color:rgba(245,158,11,.30);background:linear-gradient(135deg,rgba(245,158,11,.10),rgba(34,211,238,.07))}
+.surplus-meter{height:18px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;border:1px solid rgba(255,255,255,.08);position:relative}
+.surplus-meter span{position:absolute;top:0;bottom:0;left:50%;width:0;background:linear-gradient(90deg,#22d3ee,#22c55e);border-radius:999px}
+.surplus-meter span.deficit{right:50%;left:auto;background:linear-gradient(90deg,#22d3ee,#3b82f6)}
+.workout-ring-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px}
+.summary-flash{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.10)}
+@media(max-width:900px){.profile-strip,.workout-ring-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.profile-strip,.workout-ring-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header class="hero">
   <div>
-    <p class="eyebrow">UI/UX Pro Max Upgrade</p>
-    <h1>Nelson Command Centre V2.3</h1>
-    <p class="muted">Autosave • Google Sheets SyncLog • finish workflow • progress graphs • dark futuristic command UI</p>
+    <p class="eyebrow">V2.6.5 Final Stable Build</p>
+    <h1>Nelson Command Centre V2.6.5 Final</h1>
+    <p class="muted">Stable dashboard • fixed render • surplus sync • workout rings • food / water / protein / task / appointment modules</p>
   </div>
-  <div class="actions">
-    <span id="saveStatus" class="save-pill"><span class="save-dot"></span>Saved locally</span>
-    <button id="installBtn" class="btn hide">Install</button>
-  </div>
+  <div class="actions"><span id="saveStatus" class="save-pill"><span class="save-dot"></span>Saved locally</span><button class="btn primary" onclick="saveManual('whole app')">Save Locally</button><button class="btn green" onclick="saveAndSync('header_save_sync')">Save + Sync</button></div>
 </header>
 
 <nav class="nav">
-  <button data-view="home" class="active">Home</button>
-  <button data-view="workout">Workout</button>
-  <button data-view="progress">Progress</button>
-  <button data-view="nutrition">Nutrition</button>
-  <button data-view="tasks">Tasks</button>
-  <button data-view="settings">Settings</button>
+  <button data-view="home" class="active">Home</button><button data-view="tasks">Tasks</button><button data-view="appointment">Appointments</button><button data-view="workout">Workout</button><button data-view="nutrition">Nutrition</button><button data-view="body">Body</button><button data-view="simulator">Simulator</button><button data-view="settings">Settings</button><button data-view="help">Help</button>
 </nav>
 
 <main>
 <section id="home" class="view active">
-  <div class="grid four">
-    <article class="card kpi"><span class="label">Daily Score</span><strong id="score">0</strong><small class="muted">health + work</small></article>
-    <article class="card kpi"><span class="label">Workout</span><strong id="homeWorkout">—</strong><small id="homeWorkoutMini" class="muted">not finished</small></article>
-    <article class="card kpi"><span class="label">Protein</span><strong id="homeProtein">0g</strong><small id="homeProteinMini" class="muted"></small></article>
-    <article class="card kpi"><span class="label">Water</span><strong id="homeWater">0L</strong><small id="homeWaterMini" class="muted"></small></article>
-  </div>
-  <article class="card" style="margin-top:14px">
-    <p class="eyebrow">Daily Verdict</p>
-    <h2 id="verdictTitle">System pending</h2>
-    <p id="verdictText" class="meta" style="font-size:1.05rem"></p>
-    <p id="verdictTip" class="badge safe"></p>
-  </article>
+  <div class="tab-save"><button class="btn primary" onclick="saveManual('Home')">Save Locally</button><button class="btn green" onclick="saveAndSync('home_save_sync')">Save + Sync</button></div>
+  <article class="card sim-panel"><div class="section-title"><div><p class="eyebrow">Today Command Panel</p><h2 id="verdictTitle">System pending</h2></div><span id="scoreBadge" class="badge cyan">0/100</span></div><div id="verdictText" class="stack"></div><div id="nextActionButtons" class="next-action-grid"></div><div id="nextBestActions" class="badges"></div></article>
   <div class="grid two" style="margin-top:14px">
-    <article class="card">
-      <div class="section-title"><div><p class="eyebrow">Next Action</p><h2>Today’s Top 3</h2></div><button class="btn" id="autoTop3">Auto-select</button></div>
-      <div id="top3List" class="stack"></div>
-    </article>
-    <article class="card">
-      <p class="eyebrow">Workout Summary</p><h2>Current Draft / Finished Session</h2>
-      <div id="homeWorkoutSummary" class="stack"></div>
-    </article>
+    <article class="card"><p class="eyebrow">Task Timeline — Top Priority</p><h2>Delivery / Completion Position</h2><canvas id="taskDeadlineChart" class="deadline-canvas" width="760" height="260"></canvas><div id="taskTimeline" class="timeline-blocks"></div></article>
+    <article class="card"><p class="eyebrow">Appointments</p><h2>Next Meetings / Matters</h2><div id="appointmentHome" class="stack"></div></article>
+  </div>
+  <div class="profile-strip">
+    <article class="card kpi"><span class="label">Age</span><strong id="profileAge">—</strong><small class="muted">editable in Body</small></article>
+    <article class="card kpi"><span class="label">Height</span><strong id="profileHeight">—</strong><small class="muted">cm</small></article>
+    <article class="card kpi"><span class="label">Weight</span><strong id="profileWeight">—</strong><small class="muted">kg</small></article>
+    <article class="card kpi"><span class="label">Body Fat</span><strong id="profileBodyFat">—</strong><small class="muted">estimate</small></article>
+  </div>
+  <article class="card surplus-card" style="margin-top:14px">
+    <div class="section-title"><div><p class="eyebrow">Surplus / Deficit Dashboard</p><h2>Food Intake vs Simulator Target</h2></div><span id="surplusBadge" class="badge cyan">synced with meals</span></div>
+    <div id="surplusDashboard" class="stack"></div>
+  </article>
+
+  <div class="v26-dashboard">
+    <article class="card ring-card"><div id="ringDaily" class="ring cyan"><strong id="score">0%</strong></div><div class="ring-label">Daily control</div><p id="dailyRingNote" class="ring-note"></p></article>
+    <article class="card ring-card"><div id="ringWorkout" class="ring purple"><strong id="workoutRingText">0/0</strong></div><div class="ring-label">sets done</div><p id="workoutRingNote" class="ring-note"></p></article>
+    <article class="card ring-card"><div id="ringProtein" class="ring green"><strong id="proteinRingText">0g</strong></div><div class="ring-label">protein</div><p id="proteinRingNote" class="ring-note"></p></article>
+    <article class="card ring-card"><div id="ringWater" class="ring blue"><strong id="waterRingText">0L</strong></div><div class="ring-label">water</div><p id="waterRingNote" class="ring-note"></p></article>
+  </div>
+  <div class="graph-grid">
+    <article class="card graph-card"><p class="eyebrow">Weekly Volume</p><h2>Workout Volume Trend</h2><canvas id="weeklyVolumeGraph" width="620" height="220"></canvas><div id="weeklyVolumeNote" class="meta"></div></article>
+    <article class="card graph-card"><p class="eyebrow">Protein Consistency</p><h2>Protein vs Target</h2><canvas id="proteinGraph" width="620" height="220"></canvas><div id="proteinGraphNote" class="meta"></div></article>
+    <article class="card graph-card"><p class="eyebrow">Hydration Trend</p><h2>Water vs Target</h2><canvas id="waterGraph" width="620" height="220"></canvas><div id="waterGraphNote" class="meta"></div></article>
+    <article class="card graph-card"><p class="eyebrow">Productivity Trend</p><h2>Tasks Completed</h2><canvas id="taskGraph" width="620" height="220"></canvas><div id="taskGraphNote" class="meta"></div></article>
+  </div>
+  <div class="grid two" style="margin-top:14px">
+    <article class="card"><p class="eyebrow">Exercise Set Summary</p><h2>Sets Left by Exercise</h2><div id="exerciseSetDashboard" class="stack"></div></article>
+    <article class="card"><p class="eyebrow">Water + Protein Dashboard</p><h2>Target vs Consumed</h2><div id="homeWaterDash" class="stack"></div><div id="homeProteinDash" class="stack" style="margin-top:10px"></div></article>
   </div>
 </section>
 
 <section id="workout" class="view">
-  <div class="section-title">
-    <div><p class="eyebrow">Detailed Workout UX</p><h2>Plan → Start → Log Actual Sets → Finish</h2></div>
-    <div class="actions">
-      <button class="btn" id="copyPrompt">Copy ChatGPT Prompt</button>
-      <button class="btn danger" id="clearDraft">Clear Draft</button>
-    </div>
-  </div>
-
-  <div class="grid four">
-    <article class="card kpi"><span class="label">Session Status</span><strong id="sessionStatus">Draft</strong><small class="muted">autosaved</small></article>
-    <article class="card kpi"><span class="label">Exercises</span><strong id="exCount">0</strong><small class="muted">planned</small></article>
-    <article class="card kpi"><span class="label">Actual Volume</span><strong id="actualVolume">0</strong><small class="muted">kg</small></article>
-    <article class="card kpi"><span class="label">Cardio</span><strong id="cardioMin">0</strong><small class="muted">minutes</small></article>
-  </div>
-
-  <article class="card" style="margin-top:14px">
-    <div class="section-title"><div><p class="eyebrow">Step 1</p><h2>Session setup</h2></div><span class="badge cyan">Autosaves when changed</span></div>
-    <div class="form-grid">
-      <label>Location<select id="d_location"><option>Gym</option><option>Home Workout</option><option>Rest / Recovery</option><option>Cardio Only</option></select></label>
-      <label>Focus<select id="d_focus"><option>Back + Rear Delt</option><option>Chest + Shoulder</option><option>Legs + Core</option><option>Arms + Incline Walk</option><option>Full Body</option><option>Cardio</option><option>Recovery</option></select></label>
-      <label>Body weight kg<input id="d_bodyWeight" type="number" step="0.1" placeholder="68.0"></label>
-      <label>Energy 1–5<input id="d_energy" type="number" min="1" max="5" placeholder="3"></label>
-      <label>Duration minutes<input id="d_duration" type="number" placeholder="60"></label>
-      <label>Workout state<select id="d_status"><option>Draft</option><option>In Progress</option><option>Completed</option></select></label>
-    </div>
-  </article>
-
-  <article class="card" style="margin-top:14px">
-    <div class="section-title"><div><p class="eyebrow">Step 2</p><h2>Choose template</h2></div></div>
-    <div id="templateGrid" class="template-grid"></div>
-  </article>
-
-  <article class="card" style="margin-top:14px">
-    <div class="section-title">
-      <div><p class="eyebrow">Step 3</p><h2>Exercise cards</h2><p class="muted">Collapsed summary first. Expand only when editing. Better on Android.</p></div>
-      <div class="actions"><button class="btn green" id="addEx">+ Add Exercise</button><button class="btn primary" id="finishWorkout">Finish Workout</button></div>
-    </div>
-    <div id="exerciseList" class="stack"></div>
-  </article>
-
-  <div class="grid two" style="margin-top:14px">
-    <article class="card">
-      <p class="eyebrow">After Save Result</p>
-      <h2 id="finishTitle">Not finished yet</h2>
-      <div id="finishSummary" class="stack"></div>
-    </article>
-    <article class="card">
-      <p class="eyebrow">Strict Trainer Comment</p>
-      <h2 id="trainerTitle">No judgement yet</h2>
-      <p id="trainerComment" class="meta"></p>
-      <p id="trainerTip" class="badge safe"></p>
-    </article>
-  </div>
-</section>
-
-<section id="progress" class="view">
-  <div class="section-title">
-    <div><p class="eyebrow">Progress Check</p><h2>Compare, graph, recommend next target</h2></div>
-    <label style="min-width:260px">Exercise to inspect<select id="exerciseInspect"></select></label>
-  </div>
-  <div class="grid two">
-    <article class="card"><p class="eyebrow">Exercise Progress</p><h2 id="inspectTitle">Select exercise</h2><div id="inspectTable" class="stack"></div></article>
-    <article class="card"><p class="eyebrow">Graph</p><h2>Selected Exercise Volume</h2><canvas id="exerciseChart" width="520" height="240"></canvas></article>
-    <article class="card"><p class="eyebrow">Weekly Balance</p><h2>Muscle Group Volume</h2><div id="muscleBars" class="stack"></div></article>
-    <article class="card"><p class="eyebrow">All Workouts</p><h2>Total Volume Trend</h2><canvas id="volumeChart" width="520" height="240"></canvas></article>
-  </div>
+  <div class="tab-save"><button class="btn primary" onclick="saveManual('Workout')">Save Locally</button><button class="btn green" onclick="saveAndSync('workout_save_sync')">Save + Sync</button></div>
+  <div class="section-title"><div><p class="eyebrow">Workout</p><h2>Plan → Tick Sets → Finish</h2></div><div class="actions"><button class="btn" id="copyPrompt">Copy Coach Prompt</button><button class="btn" id="regenCoach">Regenerate Coach</button><button class="btn danger" id="clearDraft">Clear Draft</button></div></div>
+  <article class="card workout-status-panel"><div class="section-title"><div><p class="eyebrow">Workout Status</p><h2 id="workoutStatusTitle">Workout in progress</h2></div><button class="btn primary" id="finishWorkoutTop">Finish Workout</button></div><div id="workoutStatusSummary" class="stack"></div><div id="workoutRingDashboard" class="workout-ring-grid"></div></article>
+  <div class="grid five"><article class="card kpi"><span class="label">Session</span><strong id="sessionStatus">Draft</strong><small class="muted">saved locally</small></article><article class="card kpi"><span class="label">Exercises</span><strong id="exCount">0</strong></article><article class="card kpi"><span class="label">Sets Done</span><strong id="setsDoneKpi">0/0</strong></article><article class="card kpi"><span class="label">Volume</span><strong id="actualVolume">0</strong><small class="muted">kg</small></article><article class="card kpi"><span class="label">Cardio</span><strong id="cardioMin">0</strong><small class="muted">min</small></article></div>
+  <article class="card" style="margin-top:14px"><div class="form-grid"><label>Location<select id="d_location"><option>Gym</option><option>Home Workout</option><option>Rest / Recovery</option><option>Cardio Only</option></select></label><label>Focus<select id="d_focus"><option>Back + Rear Delt</option><option>Chest + Shoulder</option><option>Legs + Core</option><option>Arms + Incline Walk</option><option>Full Body</option><option>Cardio</option><option>Recovery</option></select></label><label>Body weight kg<input id="d_bodyWeight" type="number" step="0.1" placeholder="68.0"></label><label class="wide">Readiness / Energy Today <input id="d_energy" type="range" min="1" max="5" step="1"><span id="energyExplain" class="meta"></span></label><label>Duration minutes<input id="d_duration" type="number" placeholder="60"></label><label>Status<select id="d_status"><option>Draft</option><option>In Progress</option><option>Completed</option></select></label></div></article>
+  <article class="card" style="margin-top:14px"><p class="eyebrow">Template</p><h2>Choose workout</h2><div id="templateGrid" class="template-grid"></div></article>
+  <article class="card" style="margin-top:14px"><div class="section-title"><div><p class="eyebrow">Set tracking</p><h2>Exercise Cards</h2></div><div class="actions"><button class="btn green" id="addEx">+ Add Exercise</button><button class="btn primary" id="finishWorkout">Finish Workout</button></div></div><div id="exerciseList" class="stack"></div></article>
+  <div class="grid two" style="margin-top:14px"><article class="card"><p class="eyebrow">Coach Report</p><h2 id="trainerTitle">No judgement yet</h2><div class="actions"><button class="btn" id="copyCoachComment">Copy Comment</button><button class="btn" id="pasteCoachReplyBtn">Paste ChatGPT Reply</button></div><div id="trainerComment" class="stack"></div><label style="margin-top:12px">Paste ChatGPT improved reply<textarea id="coachReplyInput" rows="6" placeholder="Paste response here"></textarea></label></article><article class="card"><p class="eyebrow">Finish Summary</p><h2 id="finishTitle">Not finished yet</h2><div id="finishSummary" class="stack"></div></article></div>
 </section>
 
 <section id="nutrition" class="view">
+  <div class="tab-save"><button class="btn primary" onclick="saveManual('Nutrition')">Save Locally</button><button class="btn green" onclick="saveAndSync('nutrition_save_sync')">Save + Sync</button></div>
   <div class="grid two">
-    <article class="card">
-      <div class="section-title"><div><p class="eyebrow">Protein</p><h2>Meal Log</h2></div><button class="btn primary" id="addMeal">Add Meal</button></div>
-      <div class="grid three">
-        <div class="item"><span class="label">Consumed</span><h2 id="proteinNow">0g</h2></div>
-        <div class="item"><span class="label">Remaining</span><h2 id="proteinRemain">0g</h2></div>
-        <div class="item"><span class="label">Meals</span><h2 id="mealCount">0</h2></div>
-      </div>
+    <article class="card"><div class="section-title"><div><p class="eyebrow">Malaysian Food Macro Database</p><h2>Meal Log</h2></div><button class="btn primary" id="addMeal">Add Meal</button></div>
+      <div class="form-grid"><label>Meal timing<select id="mealType"></select></label><label>Food Category<select id="foodCategory"></select></label><label>Food / drink<select id="foodSelect"></select></label><label>Quantity<input id="foodQty" type="number" step="0.25" value="1"></label><label>Unit<input id="foodUnit" readonly></label><label>Protein override g<input id="proteinOverride" type="number" step="0.1" placeholder="optional"></label><label>Estimated protein<input id="proteinEstimate" readonly></label><label class="wide">Custom food<input id="customFood" placeholder="Optional if not in list"></label></div>
+      <div id="foodPreview" class="item" style="margin-top:12px"></div><p class="meta">Nutrition values are estimates for habit tracking only. Local food portions vary. Egg values are estimated by egg size/weight, not exact laboratory values.</p>
+      <div class="macro-grid" style="margin-top:12px"><div class="item"><span class="label">Protein</span><h2 id="macroProtein">0g</h2></div><div class="item"><span class="label">Carbs</span><h2 id="macroCarbs">0g</h2></div><div class="item"><span class="label">Fat</span><h2 id="macroFat">0g</h2></div><div class="item"><span class="label">Kcal</span><h2 id="macroKcal">0</h2></div></div>
       <div id="mealList" class="stack" style="margin-top:12px"></div>
     </article>
-    <article class="card">
-      <p class="eyebrow">Plain Water</p><h2>Hydration</h2>
-      <div class="donut-wrap">
-        <div class="donut" id="waterDonut"><span id="waterPct">0%</span></div>
-        <div><p id="waterComment" class="meta"></p><p id="waterReward" class="badge safe"></p></div>
-      </div>
-      <div class="grid two" style="margin-top:14px">
-        <button class="btn green water" data-ml="250">+250ml</button>
-        <button class="btn green water" data-ml="500">+500ml</button>
-        <button class="btn green water" data-ml="750">+750ml</button>
-        <button class="btn green water" data-ml="1000">+1L</button>
-      </div>
-      <div id="waterLog" class="stack" style="margin-top:12px"></div>
+    <article class="card"><p class="eyebrow">Water + Protein Dashboard</p><h2>Recovery Intake</h2>
+      <div class="grid three"><div class="item"><span class="label">Protein</span><h2 id="proteinNow">0g</h2></div><div class="item"><span class="label">Remaining</span><h2 id="proteinRemain">0g</h2></div><div class="item"><span class="label">Meals</span><h2 id="mealCount">0</h2></div></div>
+      <div class="mini-ring-row"><div class="water-dash"><canvas id="waterPieChart" class="pie-canvas" width="260" height="260"></canvas><div id="waterSummary" class="stack"></div></div><div class="water-dash"><canvas id="proteinPieChart" class="pie-canvas" width="260" height="260"></canvas><div id="proteinSummary" class="stack"></div></div></div>
+      <div id="mealAdvice" class="stack" style="margin-top:12px"></div>
+      <div class="actions" style="margin-top:14px"><button class="water" data-ml="250">+250ml</button><button class="water" data-ml="500">+500ml</button><button class="water" data-ml="750">+750ml</button><button class="water" data-ml="1000">+1L</button><button class="btn danger" id="undoWater">Undo Last Water</button></div>
     </article>
+  </div>
+</section>
+
+<section id="body" class="view">
+  <div class="tab-save"><button class="btn primary" onclick="saveManual('Body')">Save Locally</button><button class="btn green" onclick="saveAndSync('body_save_sync')">Save + Sync</button></div>
+  <div class="grid two">
+    <article class="card"><p class="eyebrow">Body Target & Physique Goal</p><h2>Baseline + Target</h2>
+      <div class="form-grid">
+        <label>Goal type<select id="b_goal"><option>Recomposition</option><option>Lean Muscle Gain</option><option>Fat Cut / Definition</option><option>Strength Gain</option><option>Maintenance</option><option>Recovery / Low Stress Phase</option></select></label><label>Age<input id="b_age" type="number" step="1" placeholder="40"></label>
+        <label>Height cm<input id="b_height" type="number" step="0.1"></label><label>Current weight kg<input id="b_weight" type="number" step="0.1"></label><label>Target weight kg<input id="b_targetWeight" type="number" step="0.1"></label>
+        <label>Body fat %<input id="b_bodyFat" type="number" step="0.1"></label><label>Target body fat %<input id="b_targetBodyFat" type="number" step="0.1"></label><label>Waist cm<input id="b_waist" type="number" step="0.1"></label><label>Target waist cm<input id="b_targetWaist" type="number" step="0.1"></label><label>Estimated muscle mass kg<input id="b_muscle" type="number" step="0.1"></label><label>Target muscle mass kg<input id="b_targetMuscle" type="number" step="0.1"></label><label>Target date<input id="b_targetDate" type="date"></label><label>Weekly check-in day<select id="b_checkDay"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></label>
+      </div><div class="actions" style="margin-top:12px"><button class="btn primary" id="saveBody">Save Body Target</button><button class="btn" id="applySuggestedTarget">Apply My Suggested Target</button></div><div id="bmiResult" class="stack" style="margin-top:12px"></div>
+    </article>
+    <article class="card"><p class="eyebrow">Body Target Dashboard</p><h2>Cut / Gain Direction</h2>
+      <div id="bodyTargetDashboard" class="stack"></div>
+      <canvas id="bodyChart" width="620" height="260" style="margin-top:12px"></canvas>
+      <div id="bodyTargetComment" class="stack" style="margin-top:12px"></div>
+    </article>
+  </div>
+</section>
+
+<section id="simulator" class="view">
+  <div class="tab-save"><button class="btn primary" onclick="saveManual('Simulator')">Save Locally</button><button class="btn green" onclick="saveAndSync('simulator_save_sync')">Save + Sync</button></div>
+  <article class="card sim-panel"><p class="eyebrow">Slider Simulation Dashboard</p><h2>Cut Fat vs Gain Muscle Scenario</h2><p class="meta">This is a planning simulator, not medical advice. It estimates body composition using current weight, body fat percentage, target body fat and expected lean-mass change.</p>
+    <div class="form-grid">
+      <label>Scenario<select id="sim_mode"><option>Short Fat Cut</option><option>Recomposition</option><option>Lean Muscle Gain</option><option>Bulk / Muscle Gain at 20% Body Fat</option></select></label>
+      <label>Current weight kg<input id="sim_weight" type="range" min="55" max="85" step="0.1"><span id="sim_weight_live" class="live-slider-box"></span></label>
+      <label>Current body fat %<input id="sim_bf" type="range" min="10" max="30" step="0.1"><span id="sim_bf_live" class="live-slider-box"></span></label>
+      <label>Target body fat %<input id="sim_targetBf" type="range" min="10" max="25" step="0.1"><span id="sim_targetBf_live" class="live-slider-box"></span></label>
+      <label>Lean/muscle gain target kg<input id="sim_muscleGain" type="range" min="0" max="6" step="0.1"><span id="sim_muscleGain_live" class="live-slider-box"></span></label>
+      <label>Timeline weeks<input id="sim_weeks" type="range" min="4" max="52" step="1"><span id="sim_weeks_live" class="live-slider-box"></span></label>
+    </div>
+    <div class="actions" style="margin-top:12px"><button class="btn primary" id="saveSimulation">Save Simulation Settings</button></div><div id="simReadout" class="grid four" style="margin-top:14px"></div><div id="simFormulaBox" class="item" style="margin-top:14px"></div>
+  </article>
+  <div class="grid two" style="margin-top:14px">
+    <article class="card"><p class="eyebrow">Simulation Graph</p><h2>Weight / Fat / Lean Mass</h2><canvas id="simChart" width="620" height="300"></canvas></article>
+    <article class="card"><p class="eyebrow">Action Plan</p><h2 id="simPlanTitle">Plan</h2><div id="simPlan" class="stack"></div></article>
   </div>
 </section>
 
 <section id="tasks" class="view">
-  <div class="section-title"><div><p class="eyebrow">Work Control</p><h2>Tasks</h2></div><button class="btn primary" id="addTask">Add Task</button></div>
-  <div id="taskList" class="stack"></div>
+  <div class="tab-save"><button class="btn primary" onclick="saveManual('Tasks')">Save Locally</button><button class="btn green" onclick="saveAndSync('tasks_save_sync')">Save + Sync</button></div>
+  <div class="grid two">
+    <article class="card"><p class="eyebrow">Add Task</p><h2>Work / Life Capture</h2><div class="form-grid"><label class="wide">Task title<input id="taskTitle" placeholder="e.g. Prepare UTM studio notice"></label><label>Category<select id="taskCategory"></select></label><label>Urgency<select id="taskUrgency"><option>P1 Fire</option><option>P2 Important</option><option>P3 Scheduled</option><option>P4 Later</option></select></label><label>Status<select id="taskStatus"><option>Not Started</option><option>In Progress</option><option>Blocked</option><option>Review Needed</option><option>Done</option></select></label><label>Deadline date<input id="taskDue" type="date"></label><label>Deadline time<input id="taskTime" type="time"></label><label>Completion %<input id="taskProgress" type="range" min="0" max="100" step="5" value="0"></label><label>Continue after<select id="taskContinueAfter"><option>Now</option><option>15 mins rest</option><option>After meeting</option><option>After lunch</option><option>After dinner</option><option>Tomorrow</option><option>Next day</option></select></label><label>Resume time<input id="taskResumeTime" type="datetime-local"></label><label class="full">Notes<textarea id="taskNotes" rows="3"></textarea></label></div><div class="actions" style="margin-top:12px"><button class="btn primary" id="addTask">Add Task</button><button class="btn" id="autoTop3">Auto-select Top 3</button></div></article>
+    <article class="card"><p class="eyebrow">UTM / Life Dashboard</p><h2>Task Control</h2><div id="taskGuide" class="stack"></div></article>
+  </div><article class="card" style="margin-top:14px"><p class="eyebrow">Sorted by overdue + deadline + priority</p><h2>Task List</h2><div id="taskList" class="stack"></div></article>
 </section>
 
-<section id="settings" class="view">
+
+<section id="appointment" class="view">
+  <div class="tab-save"><button class="btn primary" onclick="saveManual('Appointments')">Save Locally</button><button class="btn green" onclick="saveAndSync('appointment_save_sync')">Save + Sync</button></div>
   <div class="grid two">
     <article class="card">
-      <p class="eyebrow">Targets</p><h2>Settings</h2>
+      <p class="eyebrow">Appointment / Meeting</p><h2>Add Appointment</h2>
       <div class="form-grid">
-        <label>Protein target g/day<input id="s_protein" type="number"></label>
-        <label>Water target ml/day<input id="s_water" type="number"></label>
-        <label>Coach mode<select id="s_coach"><option>Nanny Mode</option><option>Bad Doctor</option><option>Strict</option><option>Neutral</option></select></label>
+        <label class="wide">Matter / title<input id="apptMatter" placeholder="e.g. BURSA / IGTI Sabah seminar meeting"></label>
+        <label>Date<input id="apptDate" type="date"></label>
+        <label>Time<input id="apptTime" type="time"></label>
+        <label>With who<input id="apptWith" placeholder="Name / organisation"></label>
+        <label>Mode<select id="apptMode"><option>Online</option><option>Physical</option><option>Hybrid</option></select></label><label>Status<select id="apptStatus"><option>Upcoming</option><option>Need preparation</option><option>Done</option><option>Cancelled</option><option>Postponed</option></select></label>
+        <label class="wide">Online link or venue<input id="apptVenue" placeholder="Google Meet / Zoom link / venue"></label>
+        <label class="full">For what matter / notes<textarea id="apptNotes" rows="3" placeholder="Purpose, preparation, documents to bring"></textarea></label><label class="full">Preparation checklist<textarea id="apptPrep" rows="3" placeholder="Agenda, slides, documents, venue/link checked, follow-up"></textarea></label>
       </div>
-      <button class="btn primary" id="saveSettings" style="margin-top:12px">Save Settings</button>
+      <div class="actions" style="margin-top:12px"><button class="btn primary" id="addAppointment">Add Appointment</button></div>
     </article>
     <article class="card">
-      <p class="eyebrow">Google Sheets Sync</p><h2>Sync Settings</h2>
-      <label>Apps Script Web App URL
-        <input id="s_syncUrl" placeholder="Paste https://script.google.com/macros/s/.../exec">
-      </label>
-      <div class="actions" style="margin-top:12px">
-        <button class="btn primary" id="saveSyncUrl">Save Sync URL</button>
-        <button class="btn green" id="syncNow">Sync Now</button>
-      </div>
-      <div class="item" style="margin-top:12px">
-        <span class="label">Sync Status</span>
-        <p id="syncStatusText" class="meta">Not connected yet.</p>
-        <p id="lastSyncText" class="meta">Last sync: never</p>
-      </div>
-      <p class="meta">Local autosave remains active. Sync sends a full JSON backup row into your Google Sheet SyncLog.</p>
-    </article>
-    <article class="card">
-      <p class="eyebrow">Backup</p><h2>Export / Import</h2>
-      <div class="actions"><button class="btn primary" id="exportBtn">Export Backup</button><button class="btn" id="importBtn">Import Backup</button><button class="btn danger" id="resetBtn">Reset Local Data</button></div>
-      <input id="importFile" class="hide" type="file" accept="application/json">
-      <p class="meta">Data is saved locally in this browser. For synchronized mode, connect this to Google Sheets via Apps Script later.</p>
+      <p class="eyebrow">Calendar Linked</p><h2>Upcoming Appointments</h2><div class="item calendar-warning"><p class="meta">Browser-only GitHub Pages cannot automatically read your Google Calendar unless a private backend/calendar API is added. Current flow: app → Google Calendar by link. Calendar → app requires manual copy/import or future backend integration.</p></div>
+      <div id="appointmentList" class="stack"></div>
     </article>
   </div>
 </section>
+
+<section id="settings" class="view">
+  <div class="tab-save"><button class="btn primary" onclick="saveManual('Settings')">Save Locally</button><button class="btn green" onclick="saveAndSync('settings_save_sync')">Save + Sync</button></div>
+  <div class="grid two">
+    <article class="card"><p class="eyebrow">Targets</p><h2>Health + Coach Settings</h2><div class="form-grid"><label>Protein target g/day<input id="s_protein" type="number"></label><label>Water ml/kg<input id="s_waterPerKg" type="number"></label><label>Manual water target ml<input id="s_water" type="number"></label><label>Auto water target<select id="s_autoWater"><option value="true">Yes — by body weight</option><option value="false">No — manual target</option></select></label><label>Workout extra water ml<input id="s_workoutExtra" type="number"></label><label>Coach mode<select id="s_coach"></select></label></div><button class="btn primary" id="saveSettings" style="margin-top:12px">Save Settings</button></article>
+    <article class="card"><p class="eyebrow">Google Sheets Sync</p><h2>Sync Settings</h2><div class="item sync-mode-box"><p class="item-title">Google Sheets Sync Mode</p><p class="meta">Level 1 JSON backup only. This backs up the whole app state into SyncLog. It does not yet create structured rows in Tasks, Meals, Workouts, Water or Appointments.</p></div><label>Apps Script Web App URL<input id="s_syncUrl" placeholder="Paste https://script.google.com/macros/s/.../exec"></label><div class="actions" style="margin-top:12px"><button class="btn primary" id="saveSyncUrl">Save Sync URL</button><button class="btn green" id="syncNow">Sync Now</button></div><div class="item" style="margin-top:12px"><p class="label">Sync Status</p><p id="syncStatusText" class="meta">Not connected yet.</p><p id="lastSyncText" class="meta">Last sync: never</p><p id="unsyncedText" class="meta">Unsynced changes: 0</p></div></article>
+    <article class="card full"><p class="eyebrow">Backup</p><h2>Local JSON Backup</h2><div class="actions"><button class="btn primary" id="exportBtn">Export Backup</button><button class="btn" id="importBtn">Import Backup</button><button class="btn danger" id="resetBtn">Reset Local Data</button></div><input id="importFile" class="hide" type="file" accept="application/json"></article>
+  </div>
+</section>
+
+<section id="help" class="view">
+  <div class="tab-save"><button class="btn primary" onclick="saveManual('Help')">Save Locally</button><button class="btn green" onclick="saveAndSync('help_save_sync')">Save + Sync</button></div>
+  <article class="card"><p class="eyebrow">V2.6.5 Final Notes</p><h2>Validated stable build</h2><div class="stack">
+    <div class="item"><p class="item-title">Graphs not shown</p><p class="meta">Graphs now draw after every render, show fallback messages, and no longer depend on broken old chart logic.</p></div>
+    <div class="item"><p class="item-title">Dropdowns empty</p><p class="meta">Food, task category, coach mode, templates and body selectors are populated during startup and every render.</p></div>
+    <div class="item"><p class="item-title">Buttons not working</p><p class="meta">Buttons have explicit event bindings with safety checks. Broken missing-ID crashes are avoided.</p></div>
+    <div class="item"><p class="item-title">Body target clarity</p><p class="meta">Recommended baseline is built around your 172cm profile, 68kg default, and ~20% body fat starting estimate. You can edit all values.</p></div>
+    <div class="item"><p class="item-title">Security warning</p><p class="meta">Do not paste OpenAI API keys into public GitHub Pages code. This app uses safe copy/paste coach prompt workflow.</p></div>
+  </div></article>
+</section>
 </main>
-<nav class="bottom">
-  <button data-view="home" class="active">Home</button><button data-view="workout">Workout</button><button data-view="progress">Progress</button><button data-view="nutrition">Food</button><button data-view="tasks">Tasks</button>
-</nav>
-</div>
+
+<div class="bottom"><button data-view="home" class="active">Home</button><button data-view="tasks">Tasks</button><button data-view="appointment">Appt</button><button data-view="workout">Workout</button><button data-view="nutrition">Food</button></div>
 <div id="toast" class="toast"></div>
+</div>
 
 <script>
-const KEY="ncc_v22_uiuxpromax";
-const defaultState={
-  settings:{proteinTarget:130,waterTarget:2300,coach:"Nanny Mode",syncUrl:"",lastSync:"",syncStatus:"Not connected"},
-  draft:{id:uid(),date:today(),status:"Draft",location:"Gym",focus:"Back + Rear Delt",bodyWeight:"",energy:"",duration:"",exercises:[]},
-  workouts:[],meals:[],water:[],tasks:[]
-};
-const libs={
-  Gym:[
-    ["Bench Press","Chest","strength"],["Incline Dumbbell Press","Chest","strength"],["Chest Press Machine","Chest","strength"],["Cable Fly","Chest","strength"],
-    ["Pull-up","Back","strength"],["Lat Pulldown","Back","strength"],["Seated Row","Back","strength"],["One-arm Dumbbell Row","Back","strength"],["Face Pull","Back","strength"],["Rear Delt Fly","Shoulder","strength"],
-    ["Shoulder Press","Shoulder","strength"],["Lateral Raise","Shoulder","strength"],["Barbell Curl","Arms","strength"],["Triceps Pushdown","Arms","strength"],
-    ["Squat","Legs","strength"],["Leg Press","Legs","strength"],["Romanian Deadlift","Legs","strength"],["Leg Extension","Legs","strength"],["Leg Curl","Legs","strength"],["Calf Raise","Legs","strength"],
-    ["Plank","Core","bodyweight"],["Incline Walk","Cardio","cardio"],["Treadmill Run","Cardio","cardio"],["Cycling","Cardio","cardio"]
-  ],
-  Home:[
-    ["Pull-up","Back","strength"],["Assisted Pull-up","Back","strength"],["Push-up","Chest","bodyweight"],["Incline Push-up","Chest","bodyweight"],["Dumbbell Bench Press","Chest","strength"],
-    ["Dumbbell Row","Back","strength"],["Barbell Row","Back","strength"],["Dumbbell Shoulder Press","Shoulder","strength"],["Lateral Raise","Shoulder","strength"],
-    ["Barbell Curl","Arms","strength"],["Dumbbell Curl","Arms","strength"],["Hammer Curl","Arms","strength"],["Goblet Squat","Legs","strength"],["Barbell Squat","Legs","strength"],["Romanian Deadlift","Legs","strength"],["Plank","Core","bodyweight"],["Outdoor Walk","Cardio","cardio"]
-  ]
-};
-const templates=[
-  {name:"Gym — Back + Rear Delt",loc:"Gym",focus:"Back + Rear Delt",ex:[["Lat Pulldown","Back","strength",35,10,3],["Seated Row","Back","strength",35,10,3],["One-arm Dumbbell Row","Back","strength",18,10,3],["Face Pull","Back","strength",25,12,3],["Rear Delt Fly","Shoulder","strength",20,12,3],["Incline Walk","Cardio","cardio",0,0,1,25,10,4.5]]},
-  {name:"Gym — Chest + Shoulder",loc:"Gym",focus:"Chest + Shoulder",ex:[["Bench Press","Chest","strength",40,8,3],["Incline Dumbbell Press","Chest","strength",16,10,3],["Chest Press Machine","Chest","strength",35,10,3],["Lateral Raise","Shoulder","strength",7.5,12,4],["Face Pull","Back","strength",25,12,3],["Incline Walk","Cardio","cardio",0,0,1,25,10,4.5]]},
-  {name:"Gym — Legs + Core",loc:"Gym",focus:"Legs + Core",ex:[["Leg Press","Legs","strength",80,10,4],["Romanian Deadlift","Legs","strength",40,10,3],["Leg Extension","Legs","strength",35,12,3],["Leg Curl","Legs","strength",30,12,3],["Calf Raise","Legs","strength",40,12,4],["Plank","Core","bodyweight",0,45,3]]},
-  {name:"Home — Pull-up + Push",loc:"Home Workout",focus:"Full Body",ex:[["Pull-up","Back","strength",0,5,3],["Push-up","Chest","bodyweight",0,12,3],["Dumbbell Row","Back","strength",12,10,3],["Dumbbell Shoulder Press","Shoulder","strength",10,10,3],["Barbell Curl","Arms","strength",18,10,3],["Plank","Core","bodyweight",0,45,3]]},
-  {name:"Home — 25-Min Emergency",loc:"Home Workout",focus:"Full Body",ex:[["Pull-up","Back","strength",0,5,3],["Incline Push-up","Chest","bodyweight",0,12,3],["Dumbbell Row","Back","strength",12,10,3],["Goblet Squat","Legs","strength",12,12,3],["Plank","Core","bodyweight",0,45,3]]},
-  {name:"Cardio — Incline Walk",loc:"Cardio Only",focus:"Cardio",ex:[["Incline Walk","Cardio","cardio",0,0,1,40,12,4.5]]}
-];
+const KEY="ncc_v264_workflow_stabilisation_patch";
+const OLD_KEYS=["ncc_v263_ux_hardening_patch","ncc_v262_task_appointment_food_patch","ncc_v261_hardening_patch","ncc_v26_reliability_body_coach","ncc_v25_enhanced_dashboard","ncc_v24_set_dashboard","ncc_v23_google_sheets_sync","ncc_v22_uiuxpromax"];
+const $=id=>document.getElementById(id);
+const n=v=>Number(v||0);
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 function uid(){return "id_"+Math.random().toString(36).slice(2)+Date.now().toString(36)}
 function today(){return new Date().toISOString().slice(0,10)}
 function time(){return new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
-const n=v=>Number(v||0), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])), clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
-let state=load(); let saveTimer=null;
-function load(){try{return merge(defaultState,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch{return structuredClone(defaultState)}}
-function merge(a,b){let o=structuredClone(a);for(const k in b){if(b[k]&&typeof b[k]=="object"&&!Array.isArray(b[k]))o[k]=merge(o[k]||{},b[k]);else o[k]=b[k]}return o}
-function save(auto=true){localStorage.setItem(KEY,JSON.stringify(state)); if(auto)showSaved(); render();}
-function autosave(){document.getElementById("saveStatus").innerHTML='<span class="save-dot" style="background:var(--amber)"></span>Saving...';clearTimeout(saveTimer);saveTimer=setTimeout(()=>save(true),220)}
-function showSaved(){document.getElementById("saveStatus").innerHTML='<span class="save-dot"></span>Saved locally • '+time()}
-function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
-const $=id=>document.getElementById(id);
-function switchView(v){document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id===v));document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===v)); if(v==="progress")setTimeout(drawCharts,50); window.scrollTo({top:0,behavior:"smooth"})}
-document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
 
-function exVolume(ex){if(ex.type==="cardio")return 0;return (ex.actualSets||[]).reduce((a,s)=>a+n(s.weight)*n(s.reps),0)}
-function plannedVolume(ex){return n(ex.weight)*n(ex.targetReps)*n(ex.plannedSets)}
-function totals(w){return (w.exercises||[]).reduce((a,e)=>{a.exercises++;a.planned+=plannedVolume(e);a.actual+=exVolume(e);a.sets+=(e.actualSets||[]).length || n(e.plannedSets);if(e.type==="cardio")a.cardio+=n(e.minutes);a.groups[e.group]=(a.groups[e.group]||0)+(exVolume(e)||plannedVolume(e));return a},{exercises:0,planned:0,actual:0,sets:0,cardio:0,groups:{}})}
-function todayProtein(){return state.meals.filter(m=>m.date===today()).reduce((a,m)=>a+n(m.protein),0)}
+const coachModes=["Supportive Coach","Strict Nanny Mode","Bad Doctor Mode","Performance Trainer","Cutting Coach","Academic Supervisor","Executive Assistant","Recovery Therapist","Data Analyst","Hybrid Mode"];
+const mealTypes=["Breakfast","Morning tea","Lunch","Afternoon tea","Before gym","After gym","Dinner","Snack","Supper","Protein shake","Emergency meal"];
+const taskCategories=["UTM Work","Teaching","Supervision","Research / Publication","Programme Coordination","Admin / Meeting","IGTI / NESGDC / MGBC","CASBEE / Consultancy","HRDC Training","LAM Part III","Personal","Household","Family","Friend","Finance","Health / Workout","Travel / Commute","File / Evidence","Follow-up"];
+const foodDB=[
+{name:"Telur Grade AA",unit:"1 egg ~70g",protein:8.5,carbs:0.6,fat:7.0,kcal:100,micro:"choline, B12, selenium",note:"Large egg estimate; grade/size varies by seller."},
+{name:"Telur Grade A",unit:"1 egg ~65g",protein:7.8,carbs:0.5,fat:6.5,kcal:93,micro:"choline, B12, selenium",note:"Large egg estimate."},
+{name:"Telur Grade B",unit:"1 egg ~60g",protein:7.2,carbs:0.5,fat:6.0,kcal:86,micro:"choline, B12, selenium",note:"Medium-large estimate."},
+{name:"Telur Grade C",unit:"1 egg ~55g",protein:6.6,carbs:0.4,fat:5.5,kcal:79,micro:"choline, B12, selenium",note:"Medium estimate."},
+{name:"Telur Omega",unit:"1 egg",protein:7.0,carbs:0.5,fat:5.5,kcal:80,micro:"omega-3, choline",note:"Protein similar to normal egg; omega content depends brand."},
+{name:"Telur Kampung",unit:"1 egg small/medium",protein:5.5,carbs:0.4,fat:4.5,kcal:65,micro:"choline, B12",note:"Often smaller; adjust quantity if needed."},
+{name:"Overnight rolled oat + Greek yogurt",unit:"1 bowl",protein:25,carbs:55,fat:8,kcal:390,micro:"fiber, calcium, magnesium",note:"Good breakfast; add whey if protein gap high."},
+{name:"Rolled oat",unit:"1 small bowl / 40g dry",protein:5,carbs:27,fat:3,kcal:150,micro:"fiber, magnesium",note:"Carb/fiber base, not main protein."},
+{name:"Greek yogurt",unit:"1 cup / 170g",protein:17,carbs:6,fat:0,kcal:100,micro:"calcium",note:"Good snack protein."},
+{name:"Broccoli",unit:"1 small bowl cooked",protein:3,carbs:11,fat:0.5,kcal:55,micro:"vitamin C, K, fiber",note:"Micronutrient/fiber support."},
+{name:"Noodles plain",unit:"1 bowl",protein:8,carbs:60,fat:5,kcal:330,micro:"carb source",note:"Add protein; noodles alone are weak."},
+{name:"Maggi mee curry",unit:"1 packet cooked",protein:9,carbs:55,fat:17,kcal:400,micro:"sodium high",note:"Emergency food, not ideal for cut."},
+{name:"Mee soup",unit:"1 bowl",protein:15,carbs:55,fat:10,kcal:380,micro:"sodium high",note:"Better if add egg/chicken."},
+{name:"Wrap chicken breast + cheese + lettuce",unit:"1 wrap",protein:38,carbs:36,fat:14,kcal:430,micro:"calcium, B vitamins",note:"Good high-protein meal."},
+{name:"Wrap tuna + cheese + lettuce",unit:"1 wrap",protein:42,carbs:34,fat:12,kcal:410,micro:"calcium, B12",note:"Good emergency high-protein meal."},
+{name:"White rice",unit:"1 hand-big portion",protein:4,carbs:45,fat:0.5,kcal:205,micro:"carb source",note:"Good around training; control during cut."},
+{name:"White bread",unit:"1 piece",protein:3,carbs:14,fat:1,kcal:80,micro:"fortified B vitamins",note:"Carb base."},
+{name:"Peanut butter spread",unit:"1 tablespoon",protein:4,carbs:3,fat:8,kcal:95,micro:"vitamin E",note:"High calorie; measure spoon during cut."},
+{name:"White bread + peanut butter",unit:"1 piece bread + 1 tbsp PB",protein:7,carbs:17,fat:9,kcal:175,micro:"vitamin E",note:"Convenient but calorie dense."},
+{name:"Black coffee",unit:"1 cup",protein:0,carbs:0,fat:0,kcal:2,micro:"caffeine",note:"No calorie if no sugar/milk."},
+{name:"Black coffee + sugar",unit:"1 cup + 1 tsp sugar",protein:0,carbs:4, fat:0,kcal:16,micro:"sugar",note:"Add sugar count if cutting."},
+{name:"Fresh milk",unit:"1 cup / 250ml",protein:8,carbs:12,fat:8,kcal:150,micro:"calcium, B12",note:"Useful easy protein."},
+{name:"Protein powder",unit:"1 scoop",protein:24,carbs:3,fat:2,kcal:120,micro:"varies",note:"Use 23–25g protein depending brand."},
+{name:"Protein powder",unit:"2 scoops",protein:50,carbs:6,fat:4,kcal:240,micro:"varies",note:"Useful but do not replace all meals."},
+{name:"Nasi lemak biasa",unit:"1 plate",protein:15,carbs:75,fat:30,kcal:650,micro:"iron small, sodium high",note:"High calorie; add egg/chicken if using as meal."},
+{name:"Nasi lemak + ayam",unit:"1 plate",protein:32,carbs:85,fat:38,kcal:850,micro:"iron, sodium high",note:"Useful protein but high calorie."},
+{name:"Roti canai",unit:"1 piece",protein:6,carbs:45,fat:14,kcal:330,micro:"low micronutrient",note:"Not a protein food."},
+{name:"Chapati",unit:"1 piece",protein:4,carbs:24,fat:3,kcal:140,micro:"fiber moderate",note:"Better than roti canai for lower fat."},
+{name:"Nasi putih",unit:"1 small bowl",protein:3,carbs:35,fat:0.3,kcal:160,micro:"carb source",note:"Carb base only."},
+{name:"Chicken rice",unit:"1 plate",protein:28,carbs:75,fat:18,kcal:600,micro:"B vitamins",note:"Better if remove skin and reduce rice."},
+{name:"Mixed rice + chicken",unit:"1 plate",protein:35,carbs:75,fat:20,kcal:680,micro:"depends vegetables",note:"Good practical meal if protein portion is clear."},
+{name:"Ayam dada / chicken breast",unit:"100g cooked",protein:31,carbs:0,fat:4,kcal:165,micro:"B3, B6",note:"Lean protein baseline."},
+{name:"Ayam thigh cooked",unit:"100g cooked",protein:25,carbs:0,fat:11,kcal:210,micro:"B vitamins",note:"Higher fat than breast."},
+{name:"Ikan kembung",unit:"1 medium piece",protein:22,carbs:0,fat:12,kcal:210,micro:"omega-3, B12",note:"Good local protein."},
+{name:"Sardine canned",unit:"1 small can",protein:23,carbs:3,fat:10,kcal:190,micro:"calcium, omega-3",note:"Convenient emergency food."},
+{name:"Tuna canned",unit:"1 can",protein:25,carbs:0,fat:1,kcal:120,micro:"B12",note:"Convenient lean protein."},
+{name:"Tofu",unit:"100g",protein:8,carbs:2,fat:5,kcal:80,micro:"calcium if set",note:"Plant protein; use larger portion."},
+{name:"Tempeh",unit:"100g",protein:19,carbs:9,fat:11,kcal:193,micro:"iron, fiber",note:"Strong plant protein."},
+{name:"Dhal",unit:"1 small bowl",protein:9,carbs:24,fat:5,kcal:180,micro:"fiber, folate",note:"Good with chapati; moderate protein."},
+{name:"Sayur campur",unit:"1 small bowl",protein:2,carbs:8,fat:3,kcal:70,micro:"vitamin A/C, fiber",note:"Add for vitamins and fullness."},
+{name:"Banana",unit:"1 medium",protein:1,carbs:27,fat:0.3,kcal:105,micro:"potassium, B6",note:"Good before gym."},
+{name:"Papaya",unit:"1 small bowl",protein:1,carbs:14,fat:0.2,kcal:60,micro:"vitamin C, fiber",note:"Good fruit option."},
+{name:"Soy milk",unit:"1 cup / 250ml",protein:8,carbs:8,fat:4,kcal:120,micro:"calcium if fortified",note:"Light protein drink."},
+{name:"Cooking oil",unit:"1 teaspoon",protein:0,carbs:0,fat:4.5,kcal:40,micro:"fat source",note:"Easy calories; measure during cut."},
+{name:"Teh tarik",unit:"1 cup",protein:3,carbs:35,fat:8,kcal:220,micro:"sugar",note:"Avoid during short cut."},
+{name:"Custom / manual",unit:"manual",protein:0,carbs:0,fat:0,kcal:0,micro:"manual",note:"Use override."}
+];
+const baselines={
+"Lat Pulldown":"3 sets × 8–12 reps. Add reps first, then small weight increase.",
+"Seated Row":"3 sets × 8–12 reps. Pause at squeeze; avoid body swing.",
+"Face Pull":"3 sets × 12–15 reps. Shoulder-health movement; clean form.",
+"Rear Delt Fly":"3 sets × 12–15 reps. Light and controlled.",
+"Bench Press":"3 sets × 6–10 reps. Leave 1–3 reps in reserve.",
+"Incline Dumbbell Press":"3 sets × 8–12 reps. Stable shoulder control.",
+"Lateral Raise":"3 sets × 12–15 reps. No swinging.",
+"Leg Press":"3–4 sets × 10–12 reps. Full control.",
+"Romanian Deadlift":"3 sets × 8–10 reps. Neutral back, hinge pattern.",
+"Plank":"3 sets × 30–60 sec.",
+"Incline Walk":"20–40 min, incline 8–12%, speed 4–5 km/h.",
+"Push-up":"3 sets × 8–15 clean reps.","Pull-up":"3 sets × 3–8 reps or assisted/negative reps. Full range, no half-rep ego.","Assisted Pull-up":"3 sets × 6–10 reps. Reduce assistance slowly.","Incline Push-up":"3 sets × 10–20 reps. Reduce incline as strength improves.","Lean Dumbbell Lateral Raise":"3 sets × 12–15 reps. Lean slightly, raise cleanly, no swinging."
+};
+const templates=[
+{name:"Gym — Back + Rear Delt",loc:"Gym",focus:"Back + Rear Delt",ex:[["Lat Pulldown","Back",35,10,3],["Seated Row","Back",35,10,3],["Face Pull","Back",25,12,3],["Rear Delt Fly","Shoulder",20,12,3],["Incline Walk","Cardio",0,0,1,25]]},
+{name:"Gym — Chest + Shoulder",loc:"Gym",focus:"Chest + Shoulder",ex:[["Bench Press","Chest",40,8,3],["Incline Dumbbell Press","Chest",16,10,3],["Lean Dumbbell Lateral Raise","Shoulder",5,12,3],["Face Pull","Back",25,12,3],["Incline Walk","Cardio",0,0,1,25]]},
+{name:"Gym — Legs + Core",loc:"Gym",focus:"Legs + Core",ex:[["Leg Press","Legs",80,10,4],["Romanian Deadlift","Legs",40,10,3],["Plank","Core",0,45,3],["Incline Walk","Cardio",0,0,1,20]]},
+{name:"Home — Full Body",loc:"Home Workout",focus:"Full Body",ex:[["Pull-up","Back",0,5,3],["Incline Push-up","Chest",0,15,3],["Dumbbell Row","Back",12,10,3],["Lean Dumbbell Lateral Raise","Shoulder",5,12,3],["Plank","Core",0,45,3]]},
+{name:"Recovery — Walk + Stretch",loc:"Rest / Recovery",focus:"Recovery",ex:[["Incline Walk","Cardio",0,0,1,30]]}
+];
+const exerciseNames=["Pull-up","Assisted Pull-up","Incline Push-up","Push-up","Lat Pulldown","Seated Row","Face Pull","Rear Delt Fly","Lean Dumbbell Lateral Raise","Lateral Raise","Bench Press","Incline Dumbbell Press","Leg Press","Romanian Deadlift","Plank","Incline Walk","Dumbbell Row","Barbell Curl","Triceps Pushdown"];
+const exerciseGroups=["Back","Chest","Shoulder","Legs","Core","Arms","Cardio","Full Body","Recovery"];
+
+const defaultState={
+settings:{proteinTarget:125,waterTarget:2380,waterPerKg:35,autoWater:true,workoutExtraWater:500,coach:"Hybrid Mode",syncUrl:"",lastSync:"",lastLocalSave:"",syncStatus:"Not connected",unsyncedChanges:0},
+body:{age:40,heightCm:172,weightKg:68,targetWeightKg:65.5,goal:"Recomposition",bodyFatPct:20,targetBodyFatPct:17,waistCm:82,targetWaistCm:78,muscleMassKg:28,targetMuscleMassKg:30,targetDate:"",checkDay:"Sunday"},
+draft:{id:uid(),date:today(),status:"Draft",location:"Gym",focus:"Back + Rear Delt",bodyWeight:"",energy:3,duration:60,exercises:[]},
+workouts:[],meals:[],water:[],tasks:[],appointments:[],coach:{lastComment:"",lastPrompt:"",replyHistory:[]},
+sim:{mode:"Short Fat Cut",weight:68,bf:20,targetBf:17,muscleGain:0,timelineWeeks:12}
+};
+
+let state=load();
+let saveTimer=null;
+normalizeState();
+
+function merge(a,b){const o=structuredClone(a);for(const k in (b||{})){if(b[k]&&typeof b[k]==="object"&&!Array.isArray(b[k]))o[k]=merge(o[k]||{},b[k]);else if(b[k]!==undefined)o[k]=b[k]}return o}
+function load(){try{const cur=JSON.parse(localStorage.getItem(KEY)||"null");if(cur)return merge(defaultState,cur)}catch{};for(const k of OLD_KEYS){try{const old=JSON.parse(localStorage.getItem(k)||"null");if(old){const s=merge(defaultState,old);s.settings.syncStatus="Migrated from "+k+". Save + Sync once.";s.settings.unsyncedChanges=1;return s}}catch{}}return structuredClone(defaultState)}
+function normalizeState(){state.settings=merge(defaultState.settings,state.settings||{});state.body=merge(defaultState.body,state.body||{});state.draft=merge(defaultState.draft,state.draft||{});state.sim=merge(defaultState.sim,state.sim||{});state.coach=merge(defaultState.coach,state.coach||{});if(!state.draft.exercises.length)loadTemplate(0,false);(state.tasks||[]).forEach(t=>{t.category=t.category||"Personal";t.urgency=t.urgency||"P2 Important";t.status=t.status||"Not Started";t.dueDate=t.dueDate||today()})}
+function save(auto=true){state.settings.lastLocalSave=new Date().toISOString();state.settings.unsyncedChanges=(state.settings.unsyncedChanges||0)+1;localStorage.setItem(KEY,JSON.stringify(state));if(auto)showSaved();render()}
+function saveManual(tab){save(true);toast(tab+" saved locally only. Use Save + Sync for backup.")}
+async function saveAndSync(reason){save(true);await syncToGoogleSheets(reason)}
+function showSaved(){if($("saveStatus"))$("saveStatus").innerHTML='<span class="save-dot"></span>Saved locally • '+time()}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2600)}
+
+function setView(v){document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id===v));document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===v));if(v==="home"||v==="body"||v==="simulator")setTimeout(drawAllGraphs,80);window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
+
+function bodyWeight(){return n(state.draft.bodyWeight)||n(state.body.weightKg)||68}
+function waterTarget(){const base=state.settings.autoWater?Math.round(bodyWeight()*n(state.settings.waterPerKg||35)):n(state.settings.waterTarget||2300);const extra=totals(todayWorkoutSource()).completedSets>0? n(state.settings.workoutExtraWater||500):0;return Math.max(1500,base+extra)}
+function bmi(){const h=n(state.body.heightCm)/100,w=n(state.body.weightKg);return h?w/(h*h):0}
+function bmiClass(x=bmi()){if(x<18.5)return"Underweight";if(x<25)return"Healthy";if(x<30)return"Overweight";return"Obese range"}
+function fatMass(w=n(state.body.weightKg),bf=n(state.body.bodyFatPct)){return w*bf/100}
+function leanMass(w=n(state.body.weightKg),bf=n(state.body.bodyFatPct)){return Math.max(0,w-fatMass(w,bf))}
+function muscleMassEstimate(){return n(state.body.muscleMassKg)||Math.round(leanMass()*0.52*10)/10}
+function proteinTargetAuto(){return Math.round(bodyWeight()*1.8)}
+function todayMeals(){return state.meals.filter(m=>m.date===today())}
+function todayProtein(){return todayMeals().reduce((a,m)=>a+n(m.protein),0)}
+function todayCalories(){return todayMeals().reduce((a,m)=>a+n(m.kcal),0)}
+function todayCarbs(){return todayMeals().reduce((a,m)=>a+n(m.carbs),0)}
+function todayFat(){return todayMeals().reduce((a,m)=>a+n(m.fat),0)}
+function bmrEstimate(){const w=n(state.body.weightKg)||68,h=n(state.body.heightCm)||172,age=n(state.body.age)||40;return Math.round(10*w+6.25*h-5*age+5)}
+function activityFactor(){const mode=state.sim?.mode||state.body.goal||"Recomposition";if(String(mode).includes("Short"))return 1.35;if(String(mode).includes("Bulk")||String(mode).includes("Muscle Gain"))return 1.55;if(String(mode).includes("Recovery"))return 1.25;return 1.45}
+function maintenanceCalories(){return Math.round(bmrEstimate()*activityFactor())}
+function simulatorCalorieShift(){return Math.round(simulation().dailyKcal||0)}
+function targetCalories(){return Math.round(maintenanceCalories()+simulatorCalorieShift())}
+function currentSurplus(){return Math.round(todayCalories()-maintenanceCalories())}
+function targetSurplus(){return simulatorCalorieShift()}
+function surplusDashboardHTML(){const kcal=todayCalories(),maint=maintenanceCalories(),shift=simulatorCalorieShift(),target=targetCalories(),cur=currentSurplus(),remain=target-kcal;const isSurplus=shift>0;const pctWidth=clamp(Math.abs(cur)/Math.max(500,Math.abs(shift),1)*50,0,50);return `<div class="grid three">
+<div class="item"><span class="label">Food calories today</span><h2>${kcal} kcal</h2><p class="meta">Synced from meals you logged.</p></div>
+<div class="item"><span class="label">Maintenance estimate</span><h2>${maint} kcal</h2><p class="meta">BMR ${bmrEstimate()} × activity factor ${activityFactor()}.</p></div>
+<div class="item"><span class="label">Simulator target</span><h2>${target} kcal</h2><p class="meta">${shift>=0?"+":""}${shift} kcal/day ${shift>=0?"surplus":"deficit"} plan.</p></div>
+</div>
+<div class="item"><p class="item-title">What surplus means</p><p class="meta">Surplus = you eat more calories than your estimated maintenance. It supports weight/muscle gain. Deficit = you eat less than maintenance. It supports fat loss.</p><div class="surplus-meter"><span class="${cur<0?'deficit':''}" style="width:${pctWidth}%;${cur>=0?'left:50%':'right:50%;left:auto'}"></span></div><p class="meta">Current from food: ${cur>=0?"+":""}${cur} kcal vs maintenance. Remaining to simulator target: ${remain>=0?remain+" kcal left":Math.abs(remain)+" kcal over target"}.</p></div>`}
+
 function todayWater(){return state.water.filter(w=>w.date===today()).reduce((a,w)=>a+n(w.amount),0)}
 function lastWorkout(){return state.workouts.filter(w=>w.date===today()).slice(-1)[0]}
-function dailyScore(){let s=0;if(lastWorkout())s+=30;s+=Math.min(25,Math.round(todayProtein()/state.settings.proteinTarget*25));s+=Math.min(25,Math.round(todayWater()/state.settings.waterTarget*25));s+=Math.min(20,state.tasks.filter(t=>t.date===today()&&t.status==="Done").length*7);return clamp(s,0,100)}
-function verdict(){const w=lastWorkout(),p=todayProtein(),water=todayWater();if(!w&&p<80&&water<1200)return["System neglect","No finished workout, low protein, low water. This is not recovery. This is poor maintenance with a stylish dashboard.","Do one small action now: 500ml water or Home — 25-Min Emergency."];if(w&&p<state.settings.proteinTarget*.7)return["Training without repair","Workout finished, but protein is too low. You trained, then undercut recovery.","Add a proper protein meal or whey before sleep."];if(!w)return["Workout not finished","Draft may be saved, but it is not a completed workout. Finish it or mark recovery honestly.","Open Workout → Finish Workout when done."];if(water>=state.settings.waterTarget&&p>=state.settings.proteinTarget)return["Balanced health day","Workout finished, protein target hit, water target achieved. Good boy. Repeat tomorrow; do not get cocky.","Keep the same boring structure."];return["Mixed but moving","Some data is good, but one system is still weak. Fix the weakest metric before sleep.","Check protein, water, and workout status."]}
+function todayWorkoutSource(){return lastWorkout()||state.draft}
+function setDone(s){return s&&s.done===true}
+function exCompletedSets(e){return (e.actualSets||[]).filter(setDone).length}
+function exPlannedSets(e){return n(e.sets)||0}
+function exLeft(e){return Math.max(0,exPlannedSets(e)-exCompletedSets(e))}
+function exVolume(e){return (e.actualSets||[]).filter(setDone).reduce((a,s)=>a+n(s.weight)*n(s.reps),0)}
+function totals(w={exercises:[]}){return ((w&&w.exercises)||[]).reduce((a,e)=>{a.exercises++;a.plannedSets+=exPlannedSets(e);a.completedSets+=exCompletedSets(e);a.leftSets+=exLeft(e);a.reps+=(e.actualSets||[]).filter(setDone).reduce((x,s)=>x+n(s.reps),0);a.actual+=exVolume(e);if(e.group==="Cardio"){a.targetCardio+=n(e.minutes)||n(e.reps)||0;if(exCompletedSets(e)>0)a.cardio+=n(e.minutes)||n(e.reps)||0}else{a.plannedVolume+=n(e.weight)*n(e.reps)*n(e.sets)}return a},{exercises:0,plannedSets:0,completedSets:0,leftSets:0,reps:0,actual:0,cardio:0,targetCardio:0,plannedVolume:0})}
+function todayTaskStats(){const ts=state.tasks.filter(t=>t.dueDate===today()||t.date===today());return{total:ts.length,done:ts.filter(t=>t.status==="Done").length}}
+function pct(cur,target){return clamp(target?Math.round(n(cur)/n(target)*100):0,0,100)}
+function lastSyncToday(){return !!(state.settings.lastSync&&new Date(state.settings.lastSync).toISOString().slice(0,10)===today())}
 
-function render(){
-  bindDraftToUI(false); renderHome(); renderWorkout(); renderProgress(); renderNutrition(); renderTasks(); renderSettings(); drawCharts();
-}
-function renderHome(){
-  $("score").textContent=dailyScore()+"/100";const w=lastWorkout(),t=w?totals(w):totals(state.draft);
-  $("homeWorkout").textContent=w?"Done":state.draft.status;$("homeWorkoutMini").textContent=w?`${w.focus} • ${t.sets} sets`:`Draft: ${state.draft.exercises.length} exercise(s)`;
-  $("homeProtein").textContent=todayProtein()+"g";$("homeProteinMini").textContent=`target ${state.settings.proteinTarget}g`;
-  $("homeWater").textContent=(todayWater()/1000).toFixed(2)+"L";$("homeWaterMini").textContent=`target ${(state.settings.waterTarget/1000).toFixed(1)}L`;
-  const v=verdict();$("verdictTitle").textContent=v[0];$("verdictText").textContent=v[1];$("verdictTip").textContent=v[2];
-  const top=state.tasks.filter(t=>t.top3&&t.status!=="Done").slice(0,3);
-  $("top3List").innerHTML=top.length?top.map(taskHTML).join(""):`<div class="item"><p class="meta">No Top 3 selected. Auto-select or add tasks.</p></div>`;
-  $("homeWorkoutSummary").innerHTML=summaryCards(w||state.draft,w?"Completed workout":"Current autosaved draft");
-}
-function summaryCards(w,label){const t=totals(w);return `<div class="item"><p class="item-title">${esc(label)}</p><p class="meta">${esc(w.location)} • ${esc(w.focus)} • ${esc(w.status||"Draft")}</p><div class="badges"><span class="badge cyan">${t.exercises} exercises</span><span class="badge">${t.sets} sets</span><span class="badge safe">${Math.round(t.actual||t.planned)}kg volume</span><span class="badge warn">${t.cardio} min cardio</span></div></div>`}
+function dailyScore(){const tw=totals(todayWorkoutSource()),tt=todayTaskStats();let s=0;s+=Math.min(25,Math.round(tw.completedSets/Math.max(1,tw.plannedSets)*25));s+=Math.min(25,Math.round(todayProtein()/state.settings.proteinTarget*25));s+=Math.min(20,Math.round(todayWater()/waterTarget()*20));s+=Math.min(15,Math.round(tt.done/Math.max(1,tt.total)*15));s+=lastSyncToday()?10:0;s+=n(state.draft.energy)>=3?5:0;return clamp(s,0,100)}
+function nextActions(){const out=[];const tw=totals(todayWorkoutSource());if(todayWater()<waterTarget())out.push("Drink 500ml water");if(todayProtein()<state.settings.proteinTarget)out.push("Eat protein: "+Math.min(40,Math.max(20,state.settings.proteinTarget-todayProtein()))+"g");if(tw.leftSets>0)out.push("Finish "+tw.leftSets+" set(s)");if(todayTaskStats().done<todayTaskStats().total)out.push("Close Top 3 task");if(!lastSyncToday())out.push("Save + Sync");return out.slice(0,5)}
+function coachReport(){const tw=totals(todayWorkoutSource()),p=todayProtein(),water=todayWater(),wt=waterTarget(),mode=state.settings.coach;const m=mode==="Bad Doctor Mode"?"Blunt warning":mode==="Performance Trainer"?"Performance review":mode==="Cutting Coach"?"Cutting review":mode==="Recovery Therapist"?"Recovery review":"Hybrid review";const rows=[
+["Daily Verdict",`${m}: score ${dailyScore()}/100. This is based on workout sets, protein, water, tasks, readiness and sync.`],
+["Workout Review",`${tw.completedSets}/${tw.plannedSets} sets done, ${tw.leftSets} left, ${Math.round(tw.actual)}kg volume, ${tw.cardio} min cardio.`],
+["Nutrition Review",`${p}/${state.settings.proteinTarget}g protein. Remaining ${Math.max(0,state.settings.proteinTarget-p)}g. ${mealRecommendation()}`],
+["Water Review",`${water}ml/${wt}ml. Remaining ${Math.max(0,wt-water)}ml.`],
+["Body / Goal Review",`${state.body.goal}. Weight ${state.body.weightKg}kg, body fat ${state.body.bodyFatPct}%, estimated lean mass ${leanMass().toFixed(1)}kg, muscle mass proxy ${muscleMassEstimate()}kg.`],
+["Task Review",`${todayTaskStats().done}/${todayTaskStats().total} due-today tasks completed.`],
+["Risk Warning",`${!lastSyncToday()?"Not synced today. ":""}${p<state.settings.proteinTarget*.5?"Protein too low. ":""}${tw.completedSets===0?"No real completed sets yet. ":""}`],
+["Next Best Actions",nextActions().join(" | ")||"Maintain current pattern."],
+["Tomorrow Recommendation",simPlanText(state.body.goal).short]
+];state.coach.lastComment=rows.map(r=>r[0]+"\\n"+r[1]).join("\\n\\n");return rows}
+function render(){try{bindInputsToState(false);renderHome();renderWorkout();renderNutrition();renderBody();renderSimulator();renderTasks();renderAppointments();renderSettings();drawAllGraphs()}catch(err){console.error(err);toast("Render issue: "+err.message)}}
 
-function bindDraftToUI(fromUI=true){
-  if(!fromUI){
-    ["location","focus","bodyWeight","energy","duration","status"].forEach(k=>{const el=$("d_"+k); if(el)el.value=state.draft[k]||""});
-    return;
-  }
-  ["location","focus","bodyWeight","energy","duration","status"].forEach(k=>state.draft[k]=$("d_"+k).value);
-  autosave();
-}
-function renderWorkout(){
-  const t=totals(state.draft);$("sessionStatus").textContent=state.draft.status||"Draft";$("exCount").textContent=state.draft.exercises.length;$("actualVolume").textContent=Math.round(t.actual);$("cardioMin").textContent=t.cardio;
-  $("templateGrid").innerHTML=templates.map((tpl,i)=>`<button class="template" onclick="loadTemplate(${i})"><strong>${tpl.name}</strong><small>${tpl.ex.length} exercises • ${tpl.loc}</small></button>`).join("");
-  $("exerciseList").innerHTML=state.draft.exercises.length?state.draft.exercises.map(exHTML).join(""):`<div class="item"><p class="meta">No exercise yet. Choose a template or add exercise.</p></div>`;
-  const tv=trainerVerdict();$("trainerTitle").textContent=tv[0];$("trainerComment").textContent=tv[1];$("trainerTip").textContent=tv[2];
-  const lw=lastWorkout();$("finishTitle").textContent=lw?"Workout completed today":"Not finished yet";$("finishSummary").innerHTML=lw?finishedSummary(lw):`<div class="item"><p class="meta">Autosave protects the draft. Finish Workout calculates progress and locks today’s session.</p></div>`;
-}
-function makeEx(arr){let [name,group,type,weight,reps,sets,minutes,incline,speed]=arr;return{id:uid(),name,group,type,weight:weight||0,targetReps:reps||0,plannedSets:sets||1,rest:90,rpe:7,minutes:minutes||0,incline:incline||0,speed:speed||0,expanded:false,actualSets:Array.from({length:sets||1},()=>({weight:weight||0,reps:reps||0}))}}
-function loadTemplate(i){const tpl=templates[i];state.draft={id:uid(),date:today(),status:"Draft",location:tpl.loc,focus:tpl.focus,bodyWeight:state.draft.bodyWeight||"",energy:state.draft.energy||"",duration:state.draft.duration||"",exercises:tpl.ex.map(makeEx)};bindDraftToUI(false);save();toast("Template loaded and autosaved.")}
-function exerciseOptions(){const key=state.draft.location==="Home Workout"?"Home":"Gym";return libs[key].map(x=>`<option value="${x.join("|")}">${x[1]} — ${x[0]}</option>`).join("")}
-function addExercise(){const first=(state.draft.location==="Home Workout"?libs.Home:libs.Gym)[0];state.draft.exercises.push(makeEx([first[0],first[1],first[2],0,10,3]));save();toast("Exercise added.")}
-function exHTML(e){
-  const pv=plannedVolume(e), av=exVolume(e), prog=compareExercise(e), exp=e.expanded;
-  return `<div class="exercise-card">
-    <div class="exercise-summary">
-      <div><p class="item-title">${esc(e.name)}</p><p class="meta">${esc(e.group)} • ${esc(e.type)} • ${prog.label}</p></div>
-      <div><span class="label">Target</span><strong>${e.type==="cardio"?`${e.minutes}min ${e.incline}% ${e.speed}km/h`:`${e.weight}kg × ${e.targetReps} × ${e.plannedSets}`}</strong></div>
-      <div><span class="label">Actual</span><strong>${e.type==="cardio"?`${e.minutes}min`:`${(e.actualSets||[]).map(s=>s.reps).join("/")||"—"} reps`}</strong></div>
-      <div><span class="label">Volume</span><strong>${Math.round(av||pv)}kg</strong></div>
-      <button onclick="toggleEx('${e.id}')">${exp?"Collapse":"Edit"}</button>
-    </div>
-    <div class="${exp?"":"hide"}">
-      <div class="set-grid">
-        <label class="wide">Exercise<select onchange="changeExercise('${e.id}',this.value)"><option value="${e.name+'|'+e.group+'|'+e.type}">${e.group} — ${e.name}</option>${exerciseOptions()}</select></label>
-        <label>Weight kg<input type="number" step="0.5" value="${e.weight}" oninput="updateEx('${e.id}','weight',this.value)"></label>
-        <label>Target reps<input type="number" value="${e.targetReps}" oninput="updateEx('${e.id}','targetReps',this.value)"></label>
-        <label>Planned sets<input type="number" value="${e.plannedSets}" oninput="updateEx('${e.id}','plannedSets',this.value)"></label>
-        <label>Rest sec<input type="number" value="${e.rest}" oninput="updateEx('${e.id}','rest',this.value)"></label>
-        <label>RPE<input type="number" min="1" max="10" value="${e.rpe}" oninput="updateEx('${e.id}','rpe',this.value)"></label>
-        <label class="${e.type==="cardio"?"":"hide"}">Minutes<input type="number" value="${e.minutes}" oninput="updateEx('${e.id}','minutes',this.value)"></label>
-        <label class="${e.type==="cardio"?"":"hide"}">Incline %<input type="number" step="0.5" value="${e.incline}" oninput="updateEx('${e.id}','incline',this.value)"></label>
-        <label class="${e.type==="cardio"?"":"hide"}">Speed km/h<input type="number" step="0.1" value="${e.speed}" oninput="updateEx('${e.id}','speed',this.value)"></label>
-      </div>
-      <h3 style="margin-top:14px">Actual sets</h3>
-      <div class="stack" style="margin-top:8px">${(e.actualSets||[]).map((s,idx)=>setHTML(e.id,idx,s)).join("")}</div>
-      <div class="actions" style="margin-top:10px"><button onclick="addSet('${e.id}')">+ Add actual set</button><button class="btn danger" onclick="deleteEx('${e.id}')">Delete exercise</button></div>
-    </div>
-  </div>`;
-}
-function setHTML(eid,idx,s){return `<div class="set-row"><label>Set ${idx+1} weight<input type="number" step="0.5" value="${s.weight}" oninput="updateSet('${eid}',${idx},'weight',this.value)"></label><label>Reps<input type="number" value="${s.reps}" oninput="updateSet('${eid}',${idx},'reps',this.value)"></label><button class="btn danger" onclick="deleteSet('${eid}',${idx})">Remove</button></div>`}
-function toggleEx(id){state.draft.exercises=state.draft.exercises.map(e=>e.id===id?{...e,expanded:!e.expanded}:e);save(false);render()}
-function updateEx(id,k,v){state.draft.exercises=state.draft.exercises.map(e=>e.id===id?{...e,[k]:v}:e);autosave()}
-function updateSet(id,idx,k,v){state.draft.exercises=state.draft.exercises.map(e=>e.id===id?{...e,actualSets:e.actualSets.map((s,i)=>i===idx?{...s,[k]:v}:s)}:e);autosave()}
-function addSet(id){state.draft.exercises=state.draft.exercises.map(e=>e.id===id?{...e,actualSets:[...(e.actualSets||[]),{weight:e.weight,reps:e.targetReps}]}:e);save()}
-function deleteSet(id,idx){state.draft.exercises=state.draft.exercises.map(e=>e.id===id?{...e,actualSets:e.actualSets.filter((_,i)=>i!==idx)}:e);save()}
-function deleteEx(id){if(confirm("Delete exercise?")){state.draft.exercises=state.draft.exercises.filter(e=>e.id!==id);save()}}
-function changeExercise(id,val){const [name,group,type]=val.split("|");state.draft.exercises=state.draft.exercises.map(e=>e.id===id?{...e,name,group,type}:e);save()}
-function compareExercise(e){
-  const previous=state.workouts.flatMap(w=>(w.exercises||[]).filter(x=>x.name===e.name).map(x=>({date:w.date,vol:exVolume(x)||plannedVolume(x),x}))).slice(-1)[0];
-  const current=exVolume(e)||plannedVolume(e);
-  if(!previous)return{label:"Baseline only",delta:0};
-  const delta=current-previous.vol;
-  if(delta>0)return{label:`Improving +${Math.round(delta)}kg volume`,delta};
-  if(delta<0)return{label:`Declining ${Math.round(delta)}kg volume`,delta};
-  return{label:"Flat vs last time",delta:0};
-}
-function trainerVerdict(){
-  const t=totals(state.draft), names=state.draft.exercises.map(e=>e.name).join(" "), groups=t.groups;
-  if(!state.draft.exercises.length)return["No plan yet","Choose a template or add exercise. A blank workout is not a plan.","Start with a template, then adjust actual sets."];
-  if(/Chest/.test(state.draft.focus)&&!(groups.Back>0))return["Push-heavy warning","Chest day has no real pulling support. Shoulder pain will send the invoice later.","Add face pull, row, or rear delt work."];
-  if((groups.Legs||0)===0&&state.workouts.slice(-4).every(w=>!(totals(w).groups.Legs>0)))return["Legs neglected","Leg work is missing again. This is not a balanced programme.","Train legs next session or add a leg movement today."];
-  if(t.sets<8)return["Too little volume","This session is light. Acceptable only for recovery or severe time limit.","Add useful sets or mark it recovery."];
-  if(t.sets>28)return["Too much volume","More work is not automatically more progress. Recovery must pay the bill.","Cut junk sets. Keep clean hard sets."];
-  return["Session structure acceptable","Plan is usable. Progress comes from repeating and improving, not random heroic sessions.","Finish Workout when actual sets are logged."];
-}
-function finishWorkout(){
-  if(!state.draft.exercises.length){toast("Add exercises before finishing.");return}
-  const rec=structuredClone(state.draft);rec.id=uid();rec.date=today();rec.status="Completed";rec.finishedAt=new Date().toISOString();
-  state.workouts.push(rec);state.draft={id:uid(),date:today(),status:"Draft",location:rec.location,focus:rec.focus,bodyWeight:rec.bodyWeight,energy:"",duration:"",exercises:[]};
-  save();toast("Workout finished. Progress updated.");syncToGoogleSheets("finish_workout");switchView("workout");
-}
-function finishedSummary(w){
-  const t=totals(w);let best=bestImprovement(w);return `<div class="item"><p class="item-title">Workout Completed</p><p class="meta">${w.date} • ${w.location} • ${w.focus}</p><div class="badges"><span class="badge cyan">${t.exercises} exercises</span><span class="badge">${t.sets} sets</span><span class="badge safe">${Math.round(t.actual)}kg volume</span><span class="badge warn">${t.cardio} min cardio</span></div></div><div class="item"><p class="item-title">Progress Check</p><p class="meta">${esc(best)}</p></div>`;
-}
-function bestImprovement(w){const arr=(w.exercises||[]).map(e=>compareFinished(e,w)).filter(x=>x.delta!==0).sort((a,b)=>b.delta-a.delta);if(!arr.length)return"Baseline or flat session. Repeat cleanly before increasing weight.";const b=arr[0];return b.delta>0?`${b.name} improved by +${Math.round(b.delta)}kg volume. Good. Do not rush weight; own the reps first.`:`${b.name} declined. Could be fatigue, sleep, or poor recovery. Do not ego-lift next session.`}
-function compareFinished(e,w){const prev=state.workouts.filter(x=>x.id!==w.id).flatMap(x=>(x.exercises||[]).filter(y=>y.name===e.name).map(y=>({vol:exVolume(y)||plannedVolume(y)}))).slice(-1)[0];const cur=exVolume(e)||plannedVolume(e);return{name:e.name,delta:prev?cur-prev.vol:0,cur,prev:prev?.vol||0}}
-function clearDraft(){if(confirm("Clear current draft?")){state.draft={...defaultState.draft,id:uid(),date:today()};save()}}
-
-function renderProgress(){
-  const names=[...new Set(state.workouts.flatMap(w=>(w.exercises||[]).map(e=>e.name)))];$("exerciseInspect").innerHTML=names.map(x=>`<option>${esc(x)}</option>`).join("")||"<option>No data</option>";
-  const selected=$("exerciseInspect").value||names[0];$("inspectTitle").textContent=selected||"No data";
-  const rows=state.workouts.flatMap(w=>(w.exercises||[]).filter(e=>e.name===selected).map(e=>({date:w.date,vol:exVolume(e)||plannedVolume(e),e})));
-  $("inspectTable").innerHTML=rows.length?rows.slice(-6).reverse().map((r,i)=>`<div class="item"><p class="item-title">${esc(r.date)} — ${Math.round(r.vol)}kg volume</p><p class="meta">${r.e.weight}kg target • actual reps ${(r.e.actualSets||[]).map(s=>s.reps).join("/")}</p></div>`).join(""):`<div class="item"><p class="meta">No saved workout yet. Finish a workout to generate progress.</p></div>`;
-  const groups={};state.workouts.filter(w=>daysAgo(w.date)<=7).forEach(w=>{const g=totals(w).groups;Object.keys(g).forEach(k=>groups[k]=(groups[k]||0)+g[k])});
-  const max=Math.max(1,...Object.values(groups));$("muscleBars").innerHTML=Object.keys(groups).length?Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([g,v])=>`<div class="bar-row"><strong>${g}</strong><div class="bar-track"><div class="bar-fill" style="width:${v/max*100}%"></div></div><span>${Math.round(v)}</span></div>`).join(""):`<div class="item"><p class="meta">No weekly muscle data.</p></div>`;
-}
-function daysAgo(d){return Math.floor((new Date(today())-new Date(d))/86400000)}
-function drawCharts(){
-  drawLine("volumeChart",state.workouts.slice(-14).map(w=>({label:w.date.slice(5),values:[totals(w).actual,totals(w).sets*100,totals(w).cardio*100]})),["Volume","Sets×100","Cardio×100"]);
-  const selected=$("exerciseInspect")?.value;const rows=state.workouts.flatMap(w=>(w.exercises||[]).filter(e=>e.name===selected).map(e=>({label:w.date.slice(5),values:[exVolume(e)||plannedVolume(e)]})));
-  drawLine("exerciseChart",rows,["Volume"]);
-}
-function drawLine(id,rows,labels){const c=$(id);if(!c)return;const ctx=c.getContext("2d"),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle="rgba(2,6,23,.35)";ctx.fillRect(0,0,w,h);ctx.strokeStyle="rgba(255,255,255,.08)";for(let i=1;i<5;i++){ctx.beginPath();ctx.moveTo(36,i*h/5);ctx.lineTo(w-12,i*h/5);ctx.stroke()}const colors=["#a855f7","#22c55e","#22d3ee","#f59e0b"];const max=Math.max(10,...rows.flatMap(r=>r.values));labels.forEach((l,li)=>{ctx.fillStyle=colors[li];ctx.fillRect(42+li*120,14,10,10);ctx.fillStyle="#cbd5e1";ctx.font="12px system-ui";ctx.fillText(l,58+li*120,24)});labels.forEach((l,li)=>{ctx.strokeStyle=colors[li];ctx.lineWidth=3;ctx.beginPath();rows.forEach((r,i)=>{const x=42+i*((w-70)/Math.max(1,rows.length-1));const y=h-28-(n(r.values[li])/max)*(h-62);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke()})}
-
-function renderNutrition(){
-  const p=todayProtein(),w=todayWater(),pct=Math.min(100,Math.round(w/state.settings.waterTarget*100));
-  $("proteinNow").textContent=p+"g";$("proteinRemain").textContent=Math.max(0,state.settings.proteinTarget-p)+"g";$("mealCount").textContent=state.meals.filter(m=>m.date===today()).length;
-  $("mealList").innerHTML=state.meals.filter(m=>m.date===today()).map(m=>`<div class="item"><p class="item-title">${esc(m.food)} — ${m.protein}g</p><p class="meta">${m.time} • ${m.type}</p><div class="actions"><button class="btn danger" onclick="deleteMeal('${m.id}')">Delete</button></div></div>`).join("")||`<div class="item"><p class="meta">No meal logged. Protein will not track itself.</p></div>`;
-  $("waterPct").textContent=pct+"%";$("waterDonut").style.background=`conic-gradient(var(--green) ${pct*3.6}deg,rgba(255,255,255,.09) 0deg)`;
-  $("waterComment").textContent=w>=state.settings.waterTarget?"Plain water target achieved. No need to force extra.":w>=state.settings.waterTarget*.7?"Almost there. Finish properly.":"Plain water is low. Coffee does not count.";
-  $("waterReward").textContent=w>=state.settings.waterTarget?"Good boy. Water target achieved.":"Remaining "+Math.max(0,state.settings.waterTarget-w)+"ml";
-  $("waterLog").innerHTML=state.water.filter(x=>x.date===today()).map(x=>`<div class="item"><p class="item-title">${x.amount}ml</p><p class="meta">${x.time}</p><div class="actions"><button class="btn danger" onclick="deleteWater('${x.id}')">Delete</button></div></div>`).join("")||`<div class="item"><p class="meta">No plain water logged.</p></div>`;
-}
-function addMeal(){const food=prompt("What did you eat?");if(!food)return;const protein=prompt("Protein grams?","25")||0;const type=prompt("Meal type?","Lunch")||"Meal";state.meals.push({id:uid(),date:today(),time:time(),food,protein,type});save()}
-function deleteMeal(id){state.meals=state.meals.filter(m=>m.id!==id);save()}
-function addWater(ml){state.water.push({id:uid(),date:today(),time:time(),amount:ml});save();toast("Water saved.")}
-function deleteWater(id){state.water=state.water.filter(w=>w.id!==id);save()}
-
-function renderTasks(){
-  $("taskList").innerHTML=state.tasks.length?state.tasks.map(taskHTML).join(""):`<div class="item"><p class="meta">No tasks. Add one P1 task or stop pretending the dashboard is the work.</p></div>`;
-}
-function taskHTML(t){return `<div class="item"><div class="item-head"><div><p class="item-title">${esc(t.title)}</p><p class="meta">${esc(t.project)} • ${esc(t.priority)} • ${esc(t.date)}</p></div></div><div class="badges"><span class="badge ${t.status==="Done"?"safe":"cyan"}">${t.status}</span>${t.top3?'<span class="badge warn">Top 3</span>':""}</div><div class="actions"><button onclick="toggleTask('${t.id}')">${t.status==="Done"?"Undo":"Done"}</button><button onclick="topTask('${t.id}')">Top 3</button><button class="btn danger" onclick="deleteTask('${t.id}')">Delete</button></div></div>`}
-function addTask(){const title=prompt("Task title");if(!title)return;state.tasks.push({id:uid(),title,project:"General",priority:"P2 Important",status:"Not Started",date:today(),top3:false});save()}
-function toggleTask(id){state.tasks=state.tasks.map(t=>t.id===id?{...t,status:t.status==="Done"?"Not Started":"Done"}:t);save()}
-function topTask(id){state.tasks=state.tasks.map(t=>t.id===id?{...t,top3:!t.top3}:t);save()}
-function deleteTask(id){state.tasks=state.tasks.filter(t=>t.id!==id);save()}
-function autoTop3(){const ids=new Set(state.tasks.filter(t=>t.status!=="Done").slice(0,3).map(t=>t.id));state.tasks=state.tasks.map(t=>({...t,top3:ids.has(t.id)}));save()}
+function quickAction(a){if(a.includes("water")){addWater(500);return}if(a.includes("protein")){setView("nutrition");return}if(a.includes("set")){setView("workout");return}if(a.includes("Task")||a.includes("task")){setView("tasks");return}if(a.includes("Sync")){saveAndSync("quick_action_sync");return}toast(a)}
+function renderHome(){const tw=totals(todayWorkoutSource()),score=dailyScore(),p=todayProtein(),water=todayWater(),wt=waterTarget();setRing("ringDaily",score,score+"%","dailyRingNote",score>=80?"Strong day":score>=55?"Mixed but recoverable":"Weak: close gaps");setRing("ringWorkout",pct(tw.completedSets,Math.max(1,tw.plannedSets)),`${tw.completedSets}/${Math.max(1,tw.plannedSets)}`,"workoutRingNote",`${tw.leftSets} set(s) left`);setRing("ringProtein",pct(p,state.settings.proteinTarget),p+"g","proteinRingNote",`target ${state.settings.proteinTarget}g • remain ${Math.max(0,state.settings.proteinTarget-p)}g`);setRing("ringWater",pct(water,wt),(water/1000).toFixed(1)+"L","waterRingNote",`target ${(wt/1000).toFixed(1)}L • remain ${(Math.max(0,wt-water)/1000).toFixed(1)}L`);$("scoreBadge").textContent=score+"/100";$("profileAge").textContent=(state.body.age||"—");$("profileHeight").textContent=state.body.heightCm+"cm";$("profileWeight").textContent=state.body.weightKg+"kg";$("profileBodyFat").textContent=state.body.bodyFatPct+"%";$("surplusDashboard").innerHTML=surplusDashboardHTML();$("surplusBadge").textContent=`Food ${todayCalories()} kcal • Target ${targetCalories()} kcal`;$("verdictTitle").textContent=score>=80?"On track":score>=55?"Mixed but moving":"Incomplete control";$("verdictText").innerHTML=coachReport().slice(0,4).map(([h,t])=>`<div class="item"><p class="item-title">${h}</p><p class="meta">${esc(t)}</p></div>`).join("");$("nextBestActions").innerHTML=nextActions().map(a=>`<span class="badge ${a.includes("Sync")?'warn':a.includes("protein")?'safe':a.includes("water")?'blue':'cyan'}">${esc(a)}</span>`).join("");$("nextActionButtons").innerHTML=nextActions().map(a=>`<button class="next-action-btn" onclick="quickAction(\`${esc(a)}\`)">${esc(a)}<small>Tap when done / go to related tab</small></button>`).join("");$("exerciseSetDashboard").innerHTML=exerciseSetDashboard();$("taskTimeline").innerHTML=taskTimeline();$("appointmentHome").innerHTML=appointmentHome();$("homeWaterDash").innerHTML=homeWaterDash();$("homeProteinDash").innerHTML=homeProteinDash();drawTaskDeadlineChart()}
+function setRing(id,p,text,noteId,note){const el=$(id);if(!el)return;el.style.setProperty("--p",p);const s=el.querySelector?el.querySelector("strong"):null;if(s)s.textContent=text;if($(noteId))$(noteId).textContent=note}
+function exerciseSetDashboard(){const ex=todayWorkoutSource().exercises||[];if(!ex.length)return `<div class="item"><p class="meta">No exercises. Load a template first.</p></div>`;return ex.map(e=>`<div class="item"><div class="item-head"><div><p class="item-title">${esc(e.name)}</p><p class="meta">${esc(e.group)} • ${exCompletedSets(e)}/${exPlannedSets(e)} sets done • ${exLeft(e)} left • ${Math.round(exVolume(e))}kg volume</p></div><span class="badge ${exLeft(e)===0?'safe':exCompletedSets(e)>0?'warn':'bad'}">${pct(exCompletedSets(e),Math.max(1,exPlannedSets(e)))}%</span></div><div class="bar-track"><div class="bar-fill ${exLeft(e)===0?'green':exCompletedSets(e)>0?'warn':'bad'}" style="width:${pct(exCompletedSets(e),Math.max(1,exPlannedSets(e)))}%"></div></div><p class="meta">Baseline: ${esc(baselines[e.name]||"3 sets × 8–12 controlled reps.")}</p></div>`).join("")}
+function bindInputsToState(fromUI){if(fromUI){["location","focus","bodyWeight","energy","duration","status"].forEach(k=>{const el=$("d_"+k);if(el)state.draft[k]=el.value});autosave()}else{if($("d_location")){$("d_location").value=state.draft.location;$("d_focus").value=state.draft.focus;$("d_bodyWeight").value=state.draft.bodyWeight;$("d_energy").value=state.draft.energy;$("d_duration").value=state.draft.duration;$("d_status").value=state.draft.status}if($("energyExplain"))$("energyExplain").textContent=energyText()}}
+function autosave(){clearTimeout(saveTimer);if($("saveStatus"))$("saveStatus").innerHTML='<span class="save-dot" style="background:var(--amber)"></span>Saving...';saveTimer=setTimeout(()=>save(true),250)}
+function energyText(){return ["","1 Exhausted — recovery only","2 Tired — reduce volume 20–30%","3 Normal — follow plan","4 Good — small progression","5 Excellent — push carefully"][n(state.draft.energy)]||"3 Normal"}
 
 
-async function syncToGoogleSheets(reason="manual_sync"){
-  const url=(state.settings.syncUrl||"").trim();
-  if(!url){
-    state.settings.syncStatus="No sync URL saved.";
-    localStorage.setItem(KEY,JSON.stringify(state));
-    renderSettings();
-    toast("Paste and save the sync URL first.");
-    return;
-  }
-  state.settings.syncStatus="Syncing...";
-  localStorage.setItem(KEY,JSON.stringify(state));
-  renderSettings();
-  const payload={
-    source:"Nelson Command Centre V2.3",
-    action:reason,
-    notes:"Level 1 JSON backup sync from webpage app",
-    data:{
-      exportedAt:new Date().toISOString(),
-      settings:state.settings,
-      draft:state.draft,
-      workouts:state.workouts,
-      meals:state.meals,
-      water:state.water,
-      tasks:state.tasks
-    }
-  };
-  try{
-    await fetch(url,{
-      method:"POST",
-      mode:"no-cors",
-      headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify(payload)
-    });
-    state.settings.lastSync=new Date().toISOString();
-    state.settings.syncStatus="Synced to Google Sheets / request sent";
-    localStorage.setItem(KEY,JSON.stringify(state));
-    showSaved();
-    renderSettings();
-    toast("Sync sent. Check SyncLog.");
-  }catch(err){
-    state.settings.syncStatus="Sync failed — saved locally only";
-    localStorage.setItem(KEY,JSON.stringify(state));
-    renderSettings();
-    toast("Sync failed. Data is still saved locally.");
-  }
+function volumeMultiplierFromSimulator(){const mode=state.sim?.mode||state.body.goal||"";if(String(mode).includes("Short"))return 0.9;if(String(mode).includes("Recovery"))return 0.65;if(String(mode).includes("Bulk")||String(mode).includes("Muscle Gain"))return 1.12;if(String(mode).includes("Lean"))return 1.08;return 1.0}
+function targetWorkoutVolume(w=state.draft){const t=totals(w);return Math.round((t.plannedVolume||0)*volumeMultiplierFromSimulator())}
+function targetCardioMinutes(w=state.draft){const mode=state.sim?.mode||state.body.goal||"",base=totals(w).targetCardio||0;if(String(mode).includes("Short")||String(mode).includes("Fat Cut"))return Math.max(base,30);if(String(mode).includes("Recomposition"))return Math.max(base,20);if(String(mode).includes("Bulk")||String(mode).includes("Muscle Gain"))return Math.max(base,10);return base}
+function workoutRingCard(cls,label,text,p,note){return `<article class="card ring-card"><div class="ring ${cls}" style="--p:${clamp(p,0,100)}"><strong>${text}</strong></div><div class="ring-label">${label}</div><p class="ring-note">${note}</p></article>`}
+function workoutNextSet(){for(const e of state.draft.exercises||[]){const idx=(e.actualSets||[]).findIndex(s=>!s.done);if(idx>=0)return{exercise:e,set:e.actualSets[idx],idx}}return null}
+function renderWorkoutStatus(){const tw=totals(state.draft),next=workoutNextSet(),incomplete=(state.draft.exercises||[]).filter(e=>exLeft(e)>0).length,allDone=tw.plannedSets>0&&tw.leftSets===0,targetVol=targetWorkoutVolume(),targetCardio=targetCardioMinutes();if($("workoutStatusTitle"))$("workoutStatusTitle").textContent=allDone?"All planned sets completed":"Workout in progress";if($("workoutStatusSummary"))$("workoutStatusSummary").innerHTML=`<div class="item"><p class="item-title">${tw.completedSets}/${tw.plannedSets} sets done • ${tw.leftSets} left • ${incomplete} incomplete exercise(s)</p><p class="meta">${next?`Next: ${esc(next.exercise.name)} Set ${next.idx+1}, target ${next.set.weight||next.exercise.weight}kg × ${next.set.reps||next.exercise.reps}. Rest 60–90 sec for accessories, 90–150 sec for compound sets.`:"All planned sets are ticked. Manually press Finish Workout to save the session."}</p><p class="meta">Simulator mode: ${esc(state.sim.mode)}. Recommended volume target ${targetVol}kg, cardio target ${targetCardio} min.</p></div>`;if($("workoutRingDashboard"))$("workoutRingDashboard").innerHTML=workoutRingCard("purple","sets done",`${tw.completedSets}/${Math.max(1,tw.plannedSets)}`,pct(tw.completedSets,Math.max(1,tw.plannedSets)),`${tw.leftSets} set(s) left`)+workoutRingCard("cyan","volume hit",`${Math.round(tw.actual)}kg`,pct(tw.actual,Math.max(1,targetVol)),`target ${targetVol}kg by simulator`)+workoutRingCard("blue","cardio min",`${tw.cardio}/${targetCardio}`,pct(tw.cardio,Math.max(1,targetCardio)),`current / target minutes`);if($("finishWorkoutTop"))$("finishWorkoutTop").className=allDone?"btn green":"btn primary"}
+function renderWorkout(){bindInputsToState(false);const tw=totals(state.draft);$("sessionStatus").textContent=state.draft.status;$("exCount").textContent=tw.exercises;$("setsDoneKpi").textContent=`${tw.completedSets}/${tw.plannedSets}`;$("actualVolume").textContent=Math.round(tw.actual);$("cardioMin").textContent=tw.cardio;renderWorkoutStatus();$("templateGrid").innerHTML=templates.map((t,i)=>`<button class="template" onclick="loadTemplate(${i})"><strong>${esc(t.name)}</strong><small>${t.ex.length} exercises</small></button>`).join("");$("exerciseList").innerHTML=state.draft.exercises.map(exHTML).join("");const rows=coachReport();$("trainerTitle").textContent=state.settings.coach;$("trainerComment").innerHTML=rows.map(([h,t])=>`<div class="item"><p class="item-title">${h}</p><p class="meta">${esc(t)}</p></div>`).join("")}
+function makeExercise(a){const [name,group,weight,reps,sets,minutes]=a;return{id:uid(),name,group,weight,reps,sets,minutes:minutes||0,actualSets:Array.from({length:sets},(_,i)=>({done:false,weight,reps,note:""}))}}
+function loadTemplate(i,doSave=true){const t=templates[i];if(!t)return;state.draft={...state.draft,id:uid(),date:today(),location:t.loc,focus:t.focus,status:"Draft",exercises:t.ex.map(makeExercise)};if(doSave)save(true)}
+function exHTML(e){return `<div class="exercise-card"><div class="item-head"><div><p class="item-title">${esc(e.name)}</p><p class="meta">${esc(e.group)} • ${exCompletedSets(e)}/${exPlannedSets(e)} done • ${exLeft(e)} left • ${Math.round(exVolume(e))}kg</p></div><div class="actions"><button onclick="saveExercise('${e.id}')" class="btn primary">Save Exercise</button><button onclick="addSet('${e.id}')">+ Set</button><button class="btn danger" onclick="deleteExercise('${e.id}')">Delete</button></div></div><div class="form-grid" style="margin-top:10px"><label>Exercise<select onchange="updateExercise('${e.id}','name',this.value)">${exerciseNames.map(x=>`<option ${x===e.name?'selected':''}>${esc(x)}</option>`).join("")}</select></label><label>Group<select class="group-select-mini" onchange="updateExercise('${e.id}','group',this.value)">${exerciseGroups.map(g=>`<option ${g===e.group?'selected':''}>${esc(g)}</option>`).join("")}</select></label><label>Planned sets<input type="number" value="${e.sets}" oninput="updateExercise('${e.id}','sets',this.value,true)"></label></div>${(e.actualSets||[]).map((s,idx)=>`<div class="set-row"><label class="done-check"><input type="checkbox" ${s.done?'checked':''} onchange="updateSet('${e.id}',${idx},'done',this.checked)">Done</label><label>Weight kg<input type="number" step="0.5" value="${s.weight}" oninput="updateSet('${e.id}',${idx},'weight',this.value)"></label><label>Reps / min<input type="number" step="1" value="${s.reps}" oninput="updateSet('${e.id}',${idx},'reps',this.value)"></label><label>Note<input value="${esc(s.note||'')}" oninput="updateSet('${e.id}',${idx},'note',this.value)"></label><button class="btn danger" onclick="deleteSet('${e.id}',${idx})">×</button></div>`).join("")}<div class="next-set-coach">${nextSetCoach(e)}</div><div class="exercise-save-line"><p class="meta">Mechanism: tick set → auto-save locally → exercise status updates. When all planned sets are ticked, this exercise shows Completed. Use Save + Sync to back up to Google Sheets.</p><span class="badge ${exLeft(e)===0?'safe':'warn'}">${exLeft(e)===0?"Exercise Completed":"In Progress"}</span></div><p class="meta">Baseline: ${esc(baselines[e.name]||"3 sets × 8–12 controlled reps.")}</p></div>`}
+function groupForExercise(name){const map={"Pull-up":"Back","Assisted Pull-up":"Back","Lat Pulldown":"Back","Seated Row":"Back","Dumbbell Row":"Back","Face Pull":"Back","Incline Push-up":"Chest","Push-up":"Chest","Bench Press":"Chest","Incline Dumbbell Press":"Chest","Lean Dumbbell Lateral Raise":"Shoulder","Lateral Raise":"Shoulder","Leg Press":"Legs","Romanian Deadlift":"Legs","Plank":"Core","Incline Walk":"Cardio","Barbell Curl":"Arms","Triceps Pushdown":"Arms"};return map[name]||""}
+function updateExercise(id,key,val,isNum=false){state.draft.exercises=state.draft.exercises.map(e=>{if(e.id!==id)return e;const out={...e,[key]:isNum?n(val):val};if(key==="name"){const g=groupForExercise(val);if(g)out.group=g}return out});save(true)}
+function updateSet(id,idx,key,val){let msg="Set saved locally.";state.draft.exercises.forEach(e=>{if(e.id===id&&e.actualSets[idx]){e.actualSets[idx][key]=(key==="done"?val:(key==="note"?val:n(val)));if(key==="done"){const done=(e.actualSets||[]).filter(s=>s.done).length;const left=Math.max(0,(n(e.sets)||e.actualSets.length)-done);msg=`${e.name} set ${idx+1} ${val?"completed":"unticked"}. ${left} set(s) left.`}}});save(true);toast(msg+" Dashboard updated. Use Save + Sync later for backup.")}
+function addSet(id){state.draft.exercises.forEach(e=>{if(e.id===id){const last=e.actualSets[e.actualSets.length-1]||{weight:e.weight,reps:e.reps};e.actualSets.push({done:false,weight:last.weight,reps:last.reps,note:""});e.sets=e.actualSets.length}});save(true)}
+function deleteSet(id,idx){state.draft.exercises.forEach(e=>{if(e.id===id){e.actualSets.splice(idx,1);e.sets=e.actualSets.length}});save(true)}
+function deleteExercise(id){state.draft.exercises=state.draft.exercises.filter(e=>e.id!==id);save(true)}
+function addExercise(){state.draft.exercises.push(makeExercise(["Lat Pulldown","Back",30,10,3]));save(true)}
+function saveExercise(id){save(true);toast("Exercise card saved locally. Use Save + Sync when you want Google Sheets backup.")}
+function nextSetCoach(e){const idx=(e.actualSets||[]).findIndex(s=>!s.done);if(idx<0)return `<p class="item-title">Completed</p><p class="meta">${esc(e.name)} planned sets are done. Rest or move to next incomplete exercise.</p>`;const s=e.actualSets[idx];return `<p class="item-title">Next: ${esc(e.name)} Set ${idx+1}</p><p class="meta">Target ${s.weight||e.weight}kg × ${s.reps||e.reps}. Rest 60–90 seconds for accessories, 90–150 seconds for heavy compound sets.</p>`}
+function finishWorkout(){const tw=totals(state.draft),targetVol=targetWorkoutVolume(),targetCardio=targetCardioMinutes();if(tw.completedSets<1){toast("Tick at least one set done first.");return}const w=structuredClone(state.draft);w.id=uid();w.date=today();w.status="Completed";state.workouts.push(w);state.draft.status="Completed";if($("finishTitle"))$("finishTitle").textContent="Workout saved locally";if($("finishSummary"))$("finishSummary").innerHTML=`<div class="item summary-flash"><p class="item-title">Workout Summary</p><p class="meta">${tw.completedSets}/${tw.plannedSets} sets completed • ${tw.leftSets} sets left • ${Math.round(tw.actual)}kg / ${targetVol}kg target volume • ${tw.cardio}/${targetCardio} min cardio.</p><p class="meta">Recommendation: ${tw.leftSets===0?"All planned sets completed. Save + Sync now.":"Partial workout logged. Mark intentionally unfinished or complete remaining sets next session."}</p></div>`;save(true);toast("Workout finished locally. Summary updated. Use Save + Sync for backup.")}
+function clearDraft(){if(confirm("Clear current workout draft?")){state.draft=structuredClone(defaultState.draft);loadTemplate(0,false);save(true)}}
+
+function renderNutrition(){fillSelect("mealType",mealTypes);fillFoodSelect();updateProteinEstimate();const p=todayProtein();const tc=todayMeals().reduce((a,m)=>a+n(m.carbs),0),tf=todayMeals().reduce((a,m)=>a+n(m.fat),0),tk=todayMeals().reduce((a,m)=>a+n(m.kcal),0);$("proteinNow").textContent=p+"g";$("proteinRemain").textContent=Math.max(0,state.settings.proteinTarget-p)+"g";$("mealCount").textContent=todayMeals().length;$("mealList").innerHTML=todayMeals().length?todayMeals().map(m=>`<div class="item"><p class="item-title">${esc(m.food)} — ${m.protein}g protein</p><p class="meta">${m.time} • ${m.type} • qty ${m.qty} ${esc(m.unit)} • C${m.carbs}g / F${m.fat}g / ${m.kcal} kcal • ${esc(m.micro||"")}</p><button class="btn danger" onclick="deleteMeal('${m.id}')">Delete</button></div>`).join(""):`<div class="item"><p class="meta">No meal logged. Use the dropdown above.</p></div>`;$("mealAdvice").innerHTML=`<div class="item"><p class="item-title">Today nutrition estimate</p><p class="meta">Protein ${p}/${state.settings.proteinTarget}g • Carbs ${tc}g • Fat ${tf}g • Calories ${tk} kcal. Cutting risk: ${tf>70||tk>2200?"High":"Controlled"}. Muscle support: ${p>=state.settings.proteinTarget?"Strong":p>=state.settings.proteinTarget*.7?"Moderate":"Weak"}.</p></div><div class="item"><p class="item-title">Recommended next meal</p><p class="meta">${mealRecommendation()}</p></div>`;$("waterSummary").innerHTML=`<div class="item"><p class="item-title">Water target linked to body</p><p class="meta">${todayWater()}ml / ${waterTarget()}ml. Remaining ${Math.max(0,waterTarget()-todayWater())}ml. Formula: ${bodyWeight()}kg × ${state.settings.waterPerKg}ml/kg ${totals(todayWorkoutSource()).completedSets>0?"+ workout extra":""}.</p></div>`;$("proteinSummary").innerHTML=`<div class="item"><p class="item-title">Protein target linked to body</p><p class="meta">${todayProtein()}g / ${state.settings.proteinTarget}g. Remaining ${Math.max(0,state.settings.proteinTarget-todayProtein())}g today. Body target uses approx 1.8g/kg/day.</p></div>`;drawWaterPie();drawProteinPie()}
+function fillSelect(id,arr){if(!$(id))return;const cur=$(id).value;$(id).innerHTML=arr.map(x=>`<option>${esc(x)}</option>`).join("");if(arr.includes(cur))$(id).value=cur}
+function foodCategoryOf(f){const name=f.name.toLowerCase();if(name.includes("telur")||name.includes("egg"))return"Eggs";if(name.includes("protein powder")||name.includes("whey"))return"Supplements";if(name.includes("coffee")||name.includes("milk")||name.includes("teh")||name.includes("soy"))return"Drinks";if(name.includes("rice")||name.includes("nasi")||name.includes("mee")||name.includes("maggi")||name.includes("noodles")||name.includes("roti")||name.includes("chapati")||name.includes("oat")||name.includes("bread"))return"Carbs / Malaysian Meals";if(name.includes("chicken")||name.includes("tuna")||name.includes("ikan")||name.includes("sardine")||name.includes("tofu")||name.includes("tempeh")||name.includes("dhal")||name.includes("wrap"))return"Protein Meals";if(name.includes("broccoli")||name.includes("sayur")||name.includes("banana")||name.includes("papaya"))return"Vegetables / Fruit";if(name.includes("peanut")||name.includes("oil"))return"Snacks / Fats";return"Custom"}
+function foodCategories(){return["All","Eggs","Protein Meals","Carbs / Malaysian Meals","Drinks","Vegetables / Fruit","Snacks / Fats","Supplements","Custom"]}
+function fillFoodSelect(){if(!$("foodSelect"))return;fillSelect("foodCategory",foodCategories());const cat=$("foodCategory")?.value||"All";const cur=$("foodSelect").value;const opts=foodDB.map((f,i)=>({...f,i,cat:foodCategoryOf(f)})).filter(f=>cat==="All"||f.cat===cat);$("foodSelect").innerHTML=opts.map(f=>`<option value="${f.i}">${esc(f.name)} — ${esc(f.unit)}</option>`).join("");if([...$("foodSelect").options].some(o=>o.value===cur))$("foodSelect").value=cur}
+function selectedFood(){return foodDB[n($("foodSelect")?.value)||0]||foodDB[0]}
+function updateProteinEstimate(){if(!$("foodSelect"))return;const f=selectedFood(),qty=n($("foodQty").value)||1,override=n($("proteinOverride").value);$("foodUnit").value=f.unit;$("proteinEstimate").value=(override||Math.round(f.protein*qty*10)/10)+"g";$("macroProtein").textContent=Math.round((override||f.protein*qty)*10)/10+"g";$("macroCarbs").textContent=Math.round(f.carbs*qty*10)/10+"g";$("macroFat").textContent=Math.round(f.fat*qty*10)/10+"g";$("macroKcal").textContent=Math.round(f.kcal*qty);if($("foodPreview"))$("foodPreview").innerHTML=`<p class="item-title">${esc(f.name)}</p><div class="food-preview-grid"><span class="badge safe">Protein ${f.protein}g</span><span class="badge cyan">Carbs ${f.carbs}g</span><span class="badge warn">Fat ${f.fat}g</span><span class="badge blue">${f.kcal} kcal</span></div><p class="meta">Unit: ${esc(f.unit)} • Micronutrients: ${esc(f.micro)} • ${esc(f.note)}</p>`}
+function addMeal(){const f=selectedFood(),qty=n($("foodQty").value)||1,override=n($("proteinOverride").value),food=$("customFood").value.trim()||f.name;state.meals.push({id:uid(),date:today(),time:time(),type:$("mealType").value,food,qty,unit:f.unit,protein:override||Math.round(f.protein*qty*10)/10,carbs:Math.round(f.carbs*qty*10)/10,fat:Math.round(f.fat*qty*10)/10,kcal:Math.round(f.kcal*qty),micro:f.micro,note:f.note});$("customFood").value="";$("proteinOverride").value="";save(true);toast("Meal saved. Protein/macros estimated.")}
+function deleteMeal(id){state.meals=state.meals.filter(m=>m.id!==id);save(true)}
+function addWater(ml){state.water.push({id:uid(),date:today(),time:time(),amount:n(ml)});save(true);toast("Water added. Dashboard updated.")}
+function undoLastWater(){const idx=[...state.water].map((w,i)=>w.date===today()?i:-1).filter(i=>i>=0).pop();if(idx===undefined){toast("No water entry today to undo.");return}state.water.splice(idx,1);save(true);toast("Last water entry removed.")}
+function mealRecommendation(){const rem=Math.max(0,state.settings.proteinTarget-todayProtein());if(rem<=0)return"Protein target achieved. Keep dinner controlled and avoid unnecessary liquid calories.";if(state.body.goal.includes("Fat Cut"))return`Protein gap ${rem}g. Best cut-friendly choices: chicken breast, tuna, eggs, tofu, tempeh, Greek yogurt, ikan kembung + sayur. Avoid teh tarik, roti canai and mee goreng today.`;if(state.body.goal.includes("Muscle"))return`Protein gap ${rem}g. For muscle gain: mixed rice with chicken, chicken rice with extra chicken, whey + banana, eggs + soy milk, tempeh/tofu plus rice.`;return`Protein gap ${rem}g. Practical option: 100g chicken breast + 1 egg, or whey + soy milk, or tuna + rice + vegetables.`}
+
+function renderBody(){if($("b_height")){setVal("b_age",state.body.age||40);setVal("b_height",state.body.heightCm);setVal("b_weight",state.body.weightKg);setVal("b_targetWeight",state.body.targetWeightKg);setVal("b_goal",state.body.goal);setVal("b_bodyFat",state.body.bodyFatPct);setVal("b_targetBodyFat",state.body.targetBodyFatPct);setVal("b_waist",state.body.waistCm);setVal("b_targetWaist",state.body.targetWaistCm);setVal("b_muscle",state.body.muscleMassKg);setVal("b_targetMuscle",state.body.targetMuscleMassKg);setVal("b_targetDate",state.body.targetDate);setVal("b_checkDay",state.body.checkDay)}const fm=fatMass(),lm=leanMass(),mm=muscleMassEstimate();$("bmiResult").innerHTML=`<div class="item"><p class="item-title">Suggested target for you</p><p class="meta">Based on 172cm, 68kg, and ~20% body fat: Recomposition target = 65.5–67kg, 16–17% body fat, waist around 78cm, preserve lean mass and gain about 1–2kg muscle proxy over 6–12 months.</p></div><div class="item"><p class="item-title">Current estimate</p><p class="meta">Age ${state.body.age||40} • BMI ${bmi().toFixed(1)} (${bmiClass()}) • fat mass ${fm.toFixed(1)}kg • lean mass ${lm.toFixed(1)}kg • muscle mass proxy ${mm}kg.</p></div><div class="item"><p class="item-title">Target estimate</p><p class="meta">Target ${state.body.targetWeightKg}kg at ${state.body.targetBodyFatPct}% body fat = lean mass target ${(n(state.body.targetWeightKg)*(1-n(state.body.targetBodyFatPct)/100)).toFixed(1)}kg. Muscle mass target ${state.body.targetMuscleMassKg||30}kg.</p></div>`;$("bodyTargetDashboard").innerHTML=bodyTargetDashboardHTML();$("bodyTargetComment").innerHTML=`<div class="item"><p class="item-title">${esc(state.body.goal)} — target tips</p><div class="stack">${bodyTips().map(x=>`<p class="meta">• ${esc(x)}</p>`).join("")}</div></div><div class="item"><p class="item-title">How to know cut/gain amount</p><p class="meta">Use the dashboard above: fat change tells how much fat to cut or allow; lean change tells how much lean/muscle to preserve or gain. Blue = lean mass, pink/orange = fat mass.</p></div>`;drawBodyChart()}
+function setVal(id,v){if($(id))$(id).value=v??""}
+function saveBody(){state.body.age=n($("b_age").value)||40;state.body.heightCm=n($("b_height").value)||172;state.body.weightKg=n($("b_weight").value)||68;state.body.targetWeightKg=n($("b_targetWeight").value)||state.body.weightKg;state.body.goal=$("b_goal").value;state.body.bodyFatPct=n($("b_bodyFat").value)||20;state.body.targetBodyFatPct=n($("b_targetBodyFat").value)||17;state.body.waistCm=n($("b_waist").value)||"";state.body.targetWaistCm=n($("b_targetWaist").value)||"";state.body.muscleMassKg=n($("b_muscle").value)||muscleMassEstimate();state.body.targetMuscleMassKg=n($("b_targetMuscle").value)||30;state.body.targetDate=$("b_targetDate").value;state.body.checkDay=$("b_checkDay").value;state.settings.proteinTarget=proteinTargetAuto();state.sim.weight=state.body.weightKg;state.sim.bf=state.body.bodyFatPct;save(true);toast("Body target saved. Protein target recalculated to "+state.settings.proteinTarget+"g/day.")}
+function applySuggestedTarget(){state.body.goal="Recomposition";state.body.targetWeightKg=65.5;state.body.targetBodyFatPct=17;state.body.targetWaistCm=78;state.body.targetMuscleMassKg=30;save(true);toast("Suggested recomposition target applied. Edit if needed.")}
+
+function renderSimulator(){if($("sim_mode")){setVal("sim_mode",state.sim.mode);setVal("sim_weight",state.sim.weight);setVal("sim_bf",state.sim.bf);setVal("sim_targetBf",state.sim.targetBf);setVal("sim_muscleGain",state.sim.muscleGain);setVal("sim_weeks",state.sim.timelineWeeks)}const s=simulation();$("simReadout").innerHTML=`<article class="card kpi"><span class="label">Target weight</span><strong>${s.targetWeight.toFixed(1)}kg</strong><small class="muted">${s.deltaWeight>=0?"+":""}${s.deltaWeight.toFixed(1)}kg</small></article><article class="card kpi"><span class="label">Fat change</span><strong>${s.fatDelta.toFixed(1)}kg</strong><small class="muted">negative = loss</small></article><article class="card kpi"><span class="label">Lean/muscle gain</span><strong>${s.leanGain.toFixed(1)}kg</strong><small class="muted">planned proxy</small></article><article class="card kpi"><span class="label">Daily kcal shift</span><strong>${Math.round(s.dailyKcal)}</strong><small class="muted">${s.dailyKcal<0?"deficit":"surplus"} estimate</small></article>`;updateSimLive(s);$("simFormulaBox").innerHTML=`<p class="item-title">Formula shown live</p><p class="meta">Surplus = eating above estimated maintenance. Deficit = eating below estimated maintenance. Food calories logged today sync into the Surplus Dashboard. Fat mass = weight × body fat %. Lean mass = weight − fat mass. Target weight = target lean mass ÷ (1 − target body fat %). Daily kcal shift ≈ weight change × 7700 ÷ days.</p>`;$("simPlanTitle").textContent=state.sim.mode;$("simPlan").innerHTML=simPlanText(state.sim.mode,s).items.map(x=>`<div class="item"><p class="meta">${esc(x)}</p></div>`).join("");drawSimChart(s)}
+function updateSimLive(s=simulation()){if($("sim_weight_live"))$("sim_weight_live").innerHTML=`<span class="live-num">${state.sim.weight}kg</span> current`;if($("sim_bf_live"))$("sim_bf_live").innerHTML=`<span class="live-num">${state.sim.bf}%</span> body fat`;if($("sim_targetBf_live"))$("sim_targetBf_live").innerHTML=`<span class="live-num">${state.sim.targetBf}%</span> target BF`;if($("sim_muscleGain_live"))$("sim_muscleGain_live").innerHTML=`<span class="live-num">+${state.sim.muscleGain}kg</span> lean/muscle`;if($("sim_weeks_live"))$("sim_weeks_live").innerHTML=`<span class="live-num">${state.sim.timelineWeeks}</span> weeks`}
+function bindSim(){["mode","weight","bf","targetBf","muscleGain","weeks"].forEach(k=>{const id="sim_"+(k==="weeks"?"weeks":k);const el=$(id);if(el)el.oninput=()=>{state.sim={mode:$("sim_mode").value,weight:n($("sim_weight").value),bf:n($("sim_bf").value),targetBf:n($("sim_targetBf").value),muscleGain:n($("sim_muscleGain").value),timelineWeeks:n($("sim_weeks").value)};renderSimulator()}});if($("saveSimulation"))$("saveSimulation").onclick=()=>{save(true);toast("Simulation settings saved locally.")}}
+function simulation(){const w=n(state.sim.weight),bf=n(state.sim.bf),targetBf=n(state.sim.targetBf),lean=leanMass(w,bf),fat=fatMass(w,bf),leanGain=n(state.sim.muscleGain),targetLean=lean+leanGain,targetWeight=targetLean/(1-targetBf/100),targetFat=targetWeight-targetLean,deltaWeight=targetWeight-w,fatDelta=targetFat-fat,weeks=Math.max(1,n(state.sim.timelineWeeks));const dailyKcal=deltaWeight*7700/(weeks*7);return{w,bf,fat,lean,leanGain,targetLean,targetWeight,targetFat,deltaWeight,fatDelta,dailyKcal,weeks}}
+function simPlanText(mode,s=simulation()){const cutItems=[
+"Short cut target: keep lean mass, reduce body fat first. For 68kg at 20% body fat, 17% body fat means roughly 65.5kg if lean mass is maintained.",
+"Training: 3 strength sessions/week + 2–4 cardio/walk sessions. Do not remove strength training.",
+"Food: high protein, controlled rice/oil/sweet drinks. Choose chicken breast, tuna, eggs, tofu, tempeh, ikan, vegetables, Greek yogurt, whey.",
+"Avoid in short cut: teh tarik, roti canai, mee goreng, large nasi lemak, sweet drinks, uncontrolled oil.",
+"Muscle gain during a short cut should be modest. Main target is preserve lean mass; any gain is bonus."
+];
+const gainItems=[
+"Muscle gain at about 20% body fat: surplus means eating above maintenance. Use a small surplus, progressive overload, and protein consistency. The surplus dashboard compares logged food calories to simulator target.",
+"Reasonable target: +1–3kg lean/muscle proxy over 3–9 months depending consistency. If retaining 20% body fat, body weight rises as lean mass rises.",
+"Training: 3–5 strength sessions/week, 10–20 hard sets per muscle group/week depending recovery.",
+"Food: mixed rice with clear protein portion, chicken rice with extra chicken, eggs, soy milk, whey, tempeh/tofu, ikan. Add carbs around training.",
+"Control fat gain: waist should not increase fast. If waist jumps, reduce surplus."
+];
+const recompItems=[
+"Recomposition: best default for restarting. Weight stable or slightly down, strength slowly up, waist slowly down.",
+"Training: 3–4 strength sessions/week. Hit planned sets first before adding volume.",
+"Food: protein 1.6–2.2g/kg/day, vegetables daily, controlled liquid calories.",
+"Timeline: 6–12 months. This is slower but more realistic and cleaner.",
+"Track: weekly weight average, waist, strength progression, protein consistency."
+];
+let items=mode.includes("Short")||mode.includes("Fat Cut")?cutItems:mode.includes("Bulk")||mode.includes("Muscle Gain")?gainItems:recompItems;
+return{short:items[0],items}
 }
 
-function renderSettings(){
-  $("s_protein").value=state.settings.proteinTarget;
-  $("s_water").value=state.settings.waterTarget;
-  $("s_coach").value=state.settings.coach;
-  if($("s_syncUrl")) $("s_syncUrl").value=state.settings.syncUrl||"";
-  if($("syncStatusText")) $("syncStatusText").textContent=state.settings.syncStatus||"Not connected yet.";
-  if($("lastSyncText")) $("lastSyncText").textContent=state.settings.lastSync ? "Last sync: "+new Date(state.settings.lastSync).toLocaleString() : "Last sync: never";
-}
-function saveSettings(){state.settings.proteinTarget=n($("s_protein").value)||130;state.settings.waterTarget=n($("s_water").value)||2300;state.settings.coach=$("s_coach").value;save();toast("Settings saved.")}
-function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`ncc-v22-backup-${today()}.json`;a.click()}
-function importData(file){const r=new FileReader();r.onload=()=>{try{state=merge(defaultState,JSON.parse(r.result));save();toast("Imported.")}catch{alert("Invalid backup file.")}};r.readAsText(file)}
+function renderTasks(){fillSelect("taskCategory",taskCategories);const utm=state.tasks.filter(t=>["UTM Work","Teaching","Supervision","Research / Publication","Programme Coordination","Admin / Meeting"].includes(t.category));$("taskGuide").innerHTML=`<div class="item"><p class="item-title">UTM Work</p><p class="meta">Pending ${utm.filter(t=>t.status!=="Done").length} • overdue ${utm.filter(t=>t.status!=="Done"&&t.dueDate<today()).length} • next deadline ${utm.filter(t=>t.status!=="Done").sort((a,b)=>String(a.dueDate).localeCompare(String(b.dueDate)))[0]?.dueDate||"none"}</p></div><div class="item"><p class="item-title">Rule</p><p class="meta">Overdue first, then deadline, urgency and category. Use Add to Google Calendar for dated tasks.</p></div>`;$("taskList").innerHTML=sortedTasks().length?sortedTasks().map(taskHTML).join(""):`<div class="item"><p class="meta">No tasks.</p></div>`}
+function priorityRank(p){return {"P1 Fire":1,"P2 Important":2,"P3 Scheduled":3,"P4 Later":4}[p]||9}
+function sortedTasks(){return [...state.tasks].sort((a,b)=>((a.status!=="Done"&&a.dueDate<today())?0:1)-((b.status!=="Done"&&b.dueDate<today())?0:1)||String(a.dueDate||"9999").localeCompare(String(b.dueDate||"9999"))||priorityRank(a.urgency)-priorityRank(b.urgency))}
+function taskHTML(t){return `<div class="item"><div class="item-head"><div><p class="item-title">${esc(t.title)}</p><p class="meta">${esc(t.category)} • ${esc(t.urgency)} • due ${esc(t.dueDate)} ${esc(t.dueTime||"")} • ${n(t.progress)}% complete • continue: ${esc(t.continueAfter||"Now")}</p></div><span class="badge ${t.status==="Done"?'safe':priorityRank(t.urgency)===1?'bad':priorityRank(t.urgency)===2?'warn':'cyan'}">${esc(t.status)}</span></div><p class="meta">${esc(t.notes||"")}</p><div class="bar-track"><div class="bar-fill green" style="width:${clamp(n(t.progress),0,100)}%"></div></div>
+<div class="task-edit-grid">
+<label>Progress <input id="prog_${t.id}" type="range" min="0" max="100" step="5" value="${n(t.progress)}"></label>
+<label>Continue <select id="cont_${t.id}">${["Now","15 mins rest","After meeting","After lunch","After dinner","Tomorrow","Next day"].map(x=>`<option ${x===(t.continueAfter||"Now")?"selected":""}>${x}</option>`).join("")}</select></label>
+<label>Resume <input id="res_${t.id}" type="datetime-local" value="${esc(t.resumeTime||"")}"></label>
+<button class="btn primary" onclick="updateTaskProgress('${t.id}')">Save Progress</button>
+</div><div class="badges"><span class="pause-chip">Pause/continue: ${esc(t.continueAfter||"Now")}</span></div><div class="actions"><button onclick="toggleTask('${t.id}')">${t.status==="Done"?"Undo":"Done"}</button><button onclick="topTask('${t.id}')">${t.top3?"Remove Top 3":"Top 3"}</button><a class="btn" target="_blank" href="${gcalLink(t)}">Deadline Calendar</a><button class="btn danger" onclick="deleteTask('${t.id}')">Delete</button></div></div>`}
+function gcalLink(t){const title=encodeURIComponent(t.title),details=encodeURIComponent(`${t.category}\n${t.notes||""}\nDeadline/calendar item from Nelson Command Centre. Reminder: set 30-minute notification in Google Calendar.`),d=(t.dueDate||today()).replaceAll("-","");if(t.dueTime){const hhmm=t.dueTime.replace(":","");return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${d}T${hhmm}00/${d}T${hhmm}00&details=${details}`}return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${d}/${d}&details=${details}`}
+function addTask(){const title=$("taskTitle").value.trim();if(!title){toast("Type task title first.");return}state.tasks.push({id:uid(),date:today(),title,category:$("taskCategory").value,urgency:$("taskUrgency").value,status:$("taskStatus").value,dueDate:$("taskDue").value||today(),dueTime:$("taskTime").value,notes:$("taskNotes").value,progress:n($("taskProgress").value)||0,continueAfter:$("taskContinueAfter").value,resumeTime:$("taskResumeTime").value,top3:false});$("taskTitle").value="";$("taskNotes").value="";$("taskProgress").value=0;save(true)}
+function updateTaskProgress(id){state.tasks=state.tasks.map(t=>t.id===id?{...t,progress:n($("prog_"+id).value),continueAfter:$("cont_"+id).value,resumeTime:$("res_"+id).value,status:n($("prog_"+id).value)>=100?"Done":t.status}:t);save(true);toast("Task progress saved.")}
+function toggleTask(id){state.tasks=state.tasks.map(t=>t.id===id?{...t,status:t.status==="Done"?"Not Started":"Done",progress:t.status==="Done"?n(t.progress):100}:t);save(true)}
+function topTask(id){state.tasks=state.tasks.map(t=>t.id===id?{...t,top3:!t.top3}:t);save(true)}
+function deleteTask(id){state.tasks=state.tasks.filter(t=>t.id!==id);save(true)}
+function autoTop3(){const ids=new Set(sortedTasks().filter(t=>t.status!=="Done").slice(0,3).map(t=>t.id));state.tasks=state.tasks.map(t=>({...t,top3:ids.has(t.id)}));save(true)}
+function taskTimeline(){const top=sortedTasks().slice(0,6);if(!top.length)return `<div class="item"><p class="meta">No tasks captured.</p></div>`;return top.map(t=>{const cls=t.status==="Done"?"green":priorityRank(t.urgency)===1?"red":priorityRank(t.urgency)===2?"amber":t.category.includes("UTM")?"purple":"blue";return `<div class="task-pill ${cls}"><strong>${esc(t.dueDate||"No date")}</strong><span>${esc(t.title)}<br><small class="meta">${esc(t.category)} • ${esc(t.urgency)}</small></span><a class="btn" target="_blank" href="${gcalLink(t)}">Calendar</a></div>`}).join("")}
 
-function copyPrompt(){const recent=state.workouts.slice(-3).map(w=>`${w.date} ${w.focus}`).join("; ");const prompt=`Act as my strict personal trainer. Recent workouts: ${recent||"none"}. Current draft location: ${state.draft.location}. Focus: ${state.draft.focus}. Energy: ${state.draft.energy||"3"}/5. Create today's workout with exercises, sets, reps, weights, rest, progression rule. Use a practical tone; do not please me.`;navigator.clipboard.writeText(prompt).then(()=>toast("Workout prompt copied."))}
-function init(){
-  ["location","focus","bodyWeight","energy","duration","status"].forEach(k=>{$("d_"+k).oninput=()=>bindDraftToUI(true);$("d_"+k).onchange=()=>bindDraftToUI(true)});
-  $("addEx").onclick=addExercise;$("finishWorkout").onclick=finishWorkout;$("clearDraft").onclick=clearDraft;$("copyPrompt").onclick=copyPrompt;
-  $("addMeal").onclick=addMeal;document.querySelectorAll(".water").forEach(b=>b.onclick=()=>addWater(b.dataset.ml));
-  $("addTask").onclick=addTask;$("autoTop3").onclick=autoTop3;$("saveSettings").onclick=saveSettings;$("saveSyncUrl").onclick=()=>{state.settings.syncUrl=$("s_syncUrl").value.trim();state.settings.syncStatus=state.settings.syncUrl?"Sync URL saved. Ready to sync.":"No sync URL saved.";save();toast("Sync URL saved.")};$("syncNow").onclick=()=>syncToGoogleSheets("manual_sync");$("exportBtn").onclick=exportData;$("importBtn").onclick=()=>$("importFile").click();$("importFile").onchange=e=>{if(e.target.files[0])importData(e.target.files[0])};$("resetBtn").onclick=()=>{if(confirm("Reset local data? Export backup first.")){state=structuredClone(defaultState);save()}};
-  $("exerciseInspect").onchange=()=>{renderProgress();drawCharts()};
-  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();window.deferredPrompt=e;$("installBtn").classList.remove("hide")});$("installBtn").onclick=async()=>{if(window.deferredPrompt){window.deferredPrompt.prompt();await window.deferredPrompt.userChoice;$("installBtn").classList.add("hide")}};
-  if(!state.draft.exercises.length)loadTemplate(0);else render();
-}
+
+
+function homeProteinDash(){return `<div class="water-dash"><canvas id="homeProteinPie" class="pie-canvas" width="220" height="220"></canvas><div><div class="item"><p class="item-title">Protein target linked to body</p><p class="meta">${todayProtein()}g / ${state.settings.proteinTarget}g. Remaining ${Math.max(0,state.settings.proteinTarget-todayProtein())}g. Suggested next: ${mealRecommendation()}</p></div></div></div>`}
+function drawProteinPie(){drawPie("proteinPieChart",todayProtein(),state.settings.proteinTarget,"Protein");drawPie("homeProteinPie",todayProtein(),state.settings.proteinTarget,"Protein")}
+function bodyTargetStatus(){const cw=n(state.body.weightKg), cbf=n(state.body.bodyFatPct), tw=n(state.body.targetWeightKg), tbf=n(state.body.targetBodyFatPct);const cf=fatMass(cw,cbf), cl=leanMass(cw,cbf), tf=fatMass(tw,tbf), tl=leanMass(tw,tbf);return{cw,cbf,tw,tbf,cf,cl,tf,tl,fatChange:tf-cf,leanChange:tl-cl,weightChange:tw-cw}}
+function bodyTargetDashboardHTML(){const s=bodyTargetStatus();const direction=s.fatChange<-.5&&s.leanChange>=-.5?"Cut fat while preserving lean mass":s.leanChange>.5&&Math.abs(s.fatChange)<1?"Lean gain / recomposition":s.leanChange>0&&s.fatChange>0?"Muscle gain with possible fat retention":"Maintenance / fine tuning";return `<div class="target-card-grid">
+  <div class="item"><span class="label">Direction</span><h3>${esc(direction)}</h3><p class="meta">This is the main body target logic.</p></div>
+  <div class="item"><span class="label">You should cut</span><h3>${s.fatChange<0?Math.abs(s.fatChange).toFixed(1)+"kg fat":"0kg fat"}</h3><p class="meta">${s.fatChange<0?"reduce fat mass":"fat can maintain/rise slightly"}</p></div>
+  <div class="item"><span class="label">You should gain/preserve</span><h3>${s.leanChange>=0?"+":""}${s.leanChange.toFixed(1)}kg lean</h3><p class="meta">${s.leanChange>=0?"gain/preserve lean mass":"avoid further lean loss"}</p></div>
+  </div>
+  <div class="item"><p class="item-title">Current composition: ${s.cw}kg at ${s.cbf}%</p><div class="body-stackbar"><span class="lean" style="width:${pct(s.cl,s.cw)}%"></span><span class="fat" style="width:${pct(s.cf,s.cw)}%"></span></div><p class="meta">Lean ${s.cl.toFixed(1)}kg • Fat ${s.cf.toFixed(1)}kg</p></div>
+  <div class="item"><p class="item-title">Target composition: ${s.tw}kg at ${s.tbf}%</p><div class="body-stackbar"><span class="lean" style="width:${pct(s.tl,s.tw)}%"></span><span class="fat" style="width:${pct(s.tf,s.tw)}%"></span></div><p class="meta">Target lean ${s.tl.toFixed(1)}kg • Target fat ${s.tf.toFixed(1)}kg</p></div>`}
+function bodyTips(){const s=bodyTargetStatus();let tips=[];if(s.fatChange<-.5){tips.push("Cut food first by reducing sweet drinks, teh tarik, roti canai, Maggi/mee goreng, excess oil and oversized rice.");tips.push("Keep protein high: chicken breast, tuna wrap, Greek yogurt, eggs, tofu, tempeh, whey.");tips.push("Add 2–4 cardio/walk sessions weekly, but keep resistance training to preserve muscle.");}
+if(s.leanChange>.3){tips.push("Add reps before adding weight: when you can hit the top rep range cleanly, increase small weight.");tips.push("Use progressive overload: +1–2 reps or +1 set before heavier load.");tips.push("Eat enough protein and carbs around training; do not rely on low-protein noodles.");}
+if(!tips.length){tips.push("Maintain weekly body check-in: weight trend, waist, strength progression, protein and recovery.");}
+tips.push("Smart-scale body fat/muscle mass is an estimate. Track trend, not one reading.");
+return tips}
+function appointmentHome(){const list=[...(state.appointments||[])].filter(a=>(a.status||"Upcoming")!=="Done"&&(a.status||"Upcoming")!=="Cancelled").sort((a,b)=>String(a.date+a.time).localeCompare(String(b.date+b.time))).slice(0,4);if(!list.length)return `<div class="item"><p class="meta">No upcoming appointment captured.</p></div>`;return list.map(a=>`<div class="item"><div class="item-head"><div><p class="item-title">${esc(a.matter)}</p><p class="meta">${esc(a.date)} ${esc(a.time)} • with ${esc(a.withWho)} • ${esc(a.mode)} • ${esc(a.venue)}</p></div><span class="appt-status ${apptStatusClass(a.status)}">${esc(a.status||"Upcoming")}</span></div><p class="meta">${esc(a.notes||"")}</p><p class="meta">Prep: ${esc(a.prep||"none")}</p><div class="actions"><a class="btn" target="_blank" href="${apptCalendarLink(a)}">Add Appointment to Google Calendar</a><button onclick="setAppointmentStatus('${a.id}','Done')" class="btn green">Mark Done</button><button onclick="setAppointmentStatus('${a.id}','Postponed')" class="btn warn">Postpone</button><button class="btn danger" onclick="deleteAppointment('${a.id}')">Delete</button></div></div>`).join("")}
+function apptStatusClass(s){s=s||"Upcoming";return s==="Done"?"appt-done":s==="Cancelled"?"appt-cancelled":s==="Postponed"?"appt-postponed":"appt-upcoming"}
+function renderAppointments(){if(!$("appointmentList"))return;$("appointmentList").innerHTML=appointmentHome().replaceAll("No upcoming appointment captured","No upcoming appointment captured. Add one on the left.");}
+function addAppointment(){const matter=$("apptMatter").value.trim();if(!matter){toast("Type appointment matter/title first.");return}state.appointments=state.appointments||[];state.appointments.push({id:uid(),matter,date:$("apptDate").value||today(),time:$("apptTime").value||"09:00",withWho:$("apptWith").value,mode:$("apptMode").value,venue:$("apptVenue").value,notes:$("apptNotes").value,prep:$("apptPrep").value,status:$("apptStatus").value});["apptMatter","apptWith","apptVenue","apptNotes","apptPrep"].forEach(id=>$(id).value="");save(true);toast("Appointment saved locally. Use Save + Sync for backup.")}
+function deleteAppointment(id){state.appointments=(state.appointments||[]).filter(a=>a.id!==id);save(true)}
+function setAppointmentStatus(id,status){state.appointments=(state.appointments||[]).map(a=>a.id===id?{...a,status}:a);save(true);toast("Appointment status updated.")}
+function apptCalendarLink(a){const title=encodeURIComponent(a.matter),d=(a.date||today()).replaceAll("-",""),hhmm=(a.time||"0900").replace(":","");const details=encodeURIComponent(`With: ${a.withWho||""}\nMode: ${a.mode||""}\nMatter: ${a.notes||""}\nVenue/link: ${a.venue||""}`);const loc=encodeURIComponent(a.venue||"");return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${d}T${hhmm}00/${d}T${hhmm}00&details=${details}&location=${loc}`}
+function homeWaterDash(){return `<div class="water-dash"><canvas id="homeWaterPie" class="pie-canvas" width="220" height="220"></canvas><div><div class="item"><p class="item-title">Water target linked to body</p><p class="meta">${todayWater()}ml / ${waterTarget()}ml. Remaining ${Math.max(0,waterTarget()-todayWater())}ml. Body basis: ${bodyWeight()}kg × ${state.settings.waterPerKg}ml/kg ${totals(todayWorkoutSource()).completedSets>0?"+ workout extra":""}.</p></div></div></div>`}
+function drawWaterPie(){drawPie("waterPieChart",todayWater(),waterTarget(),"Water");drawPie("homeWaterPie",todayWater(),waterTarget(),"Water")}
+function progressColor(p,type){if(type==="water")return["#22d3ee","#3b82f6"];if(type==="protein")return p>=100?["#22c55e","#16a34a"]:["#22c55e","#22d3ee"];if(p<40)return["#ef4444","#991b1b"];if(p<70)return["#f59e0b","#b45309"];return["#22d3ee","#22c55e"]}
+function drawPie(id,cur,target,label){const c=$(id);if(!c)return;const ctx=c.getContext("2d"),w=c.width,h=c.height,cx=w/2,cy=h/2,r=Math.min(w,h)/2-18,p=pct(cur,target),type=String(id).toLowerCase().includes("protein")?"protein":"water";ctx.clearRect(0,0,w,h);ctx.lineWidth=22;ctx.strokeStyle="rgba(255,255,255,.08)";ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();const g=ctx.createLinearGradient(0,0,w,h),cols=progressColor(p,type);g.addColorStop(0,cols[0]);g.addColorStop(1,cols[1]);ctx.strokeStyle=g;ctx.lineCap="round";ctx.beginPath();ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*p/100);ctx.stroke();ctx.fillStyle="#f8fafc";ctx.font="bold 26px system-ui";ctx.textAlign="center";ctx.fillText(p+"%",cx,cy-4);ctx.font="12px system-ui";ctx.fillStyle="#a8b3c7";ctx.fillText(`${cur}/${target}${type==="protein"?"g":"ml"}`,cx,cy+22)}
+function drawTaskDeadlineChart(){const c=$("taskDeadlineChart");if(!c)return;const ctx=c.getContext("2d"),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle="rgba(255,255,255,.025)";ctx.fillRect(0,0,w,h);const tasks=sortedTasks().filter(t=>t.status!=="Done").slice(0,8);ctx.strokeStyle="rgba(255,255,255,.12)";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(40,h/2);ctx.lineTo(w-40,h/2);ctx.stroke();ctx.fillStyle="#a8b3c7";ctx.font="12px system-ui";ctx.fillText("Today",40,h/2+28);ctx.fillText("Later",w-80,h/2+28);if(!tasks.length){ctx.fillText("No pending deadlines.",w/2-50,h/2-15);return}const now=new Date(today()).getTime();const maxDays=Math.max(1,...tasks.map(t=>Math.max(0,(new Date(t.dueDate).getTime()-now)/86400000)));tasks.forEach((t,i)=>{const days=Math.max(0,(new Date(t.dueDate).getTime()-now)/86400000);const x=40+days/maxDays*(w-80),y=h/2+(i%2?34:-34);ctx.fillStyle=priorityRank(t.urgency)===1?"#ef4444":priorityRank(t.urgency)===2?"#f59e0b":"#22d3ee";ctx.beginPath();ctx.arc(x,h/2,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle="rgba(255,255,255,.16)";ctx.beginPath();ctx.moveTo(x,h/2);ctx.lineTo(x,y);ctx.stroke();ctx.fillStyle="#e2e8f0";ctx.fillText(t.title.slice(0,24),Math.min(x,w-190),y+(i%2?18:-8));ctx.fillStyle="#a8b3c7";ctx.fillText(`${t.dueDate} • ${n(t.progress)}%`,Math.min(x,w-190),y+(i%2?34:8))})}
+function renderSettings(){fillSelect("s_coach",coachModes);if($("s_protein")){$("s_protein").value=state.settings.proteinTarget;$("s_water").value=state.settings.waterTarget;$("s_waterPerKg").value=state.settings.waterPerKg;$("s_autoWater").value=String(!!state.settings.autoWater);$("s_workoutExtra").value=state.settings.workoutExtraWater;$("s_coach").value=state.settings.coach;$("s_syncUrl").value=state.settings.syncUrl||"";$("syncStatusText").textContent=state.settings.syncStatus||"Not connected";$("lastSyncText").textContent=state.settings.lastSync?"Last sync: "+new Date(state.settings.lastSync).toLocaleString():"Last sync: never";$("unsyncedText").textContent=`Unsynced changes: ${state.settings.unsyncedChanges||0}. Last local save: ${state.settings.lastLocalSave?new Date(state.settings.lastLocalSave).toLocaleString():"never"}`}}
+function saveSettings(){state.settings.proteinTarget=n($("s_protein").value)||125;state.settings.waterTarget=n($("s_water").value)||2300;state.settings.waterPerKg=n($("s_waterPerKg").value)||35;state.settings.autoWater=$("s_autoWater").value==="true";state.settings.workoutExtraWater=n($("s_workoutExtra").value)||500;state.settings.coach=$("s_coach").value;save(true)}
+async function syncToGoogleSheets(reason="manual_sync"){const url=(state.settings.syncUrl||"").trim();if(!url){state.settings.syncStatus="No sync URL saved.";localStorage.setItem(KEY,JSON.stringify(state));renderSettings();toast("Paste and save the sync URL first.");return}state.settings.syncStatus="Syncing...";localStorage.setItem(KEY,JSON.stringify(state));renderSettings();const payload={source:"Nelson Command Centre V2.6.5 Final",action:reason,notes:"Level 1 JSON backup; V2.6.5 Final stable build with fixed render chain, surplus dashboard, workout rings, blue water dashboard, protein dashboard, task and appointment modules",data:{exportedAt:new Date().toISOString(),settings:state.settings,body:state.body,draft:state.draft,workouts:state.workouts,meals:state.meals,water:state.water,tasks:state.tasks,appointments:state.appointments||[],coach:state.coach,sim:state.sim}};try{await fetch(url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});state.settings.lastSync=new Date().toISOString();state.settings.unsyncedChanges=0;state.settings.syncStatus="Synced to Google Sheets / request sent";localStorage.setItem(KEY,JSON.stringify(state));showSaved();renderSettings();toast("Sync sent. Check SyncLog.")}catch(err){state.settings.syncStatus="Sync failed — saved locally only";localStorage.setItem(KEY,JSON.stringify(state));renderSettings();toast("Sync failed. Data saved locally.")}}
+function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`ncc-v261-backup-${today()}.json`;a.click()}
+function importData(file){const r=new FileReader();r.onload=()=>{try{state=merge(defaultState,JSON.parse(r.result));normalizeState();save(true);toast("Imported.")}catch{alert("Invalid backup file.")}};r.readAsText(file)}
+function copyPrompt(){const tw=totals(todayWorkoutSource());const prompt=`Act as my ${state.settings.coach}. Review this Nelson Command Centre data. Give Daily Verdict, Workout Review, Exercise Completion Review, Nutrition Review, Water Review, Body/BMI/Goal Review, Task Review, Risk Warning, Next Best Actions, Tomorrow Recommendation. Data: sets ${tw.completedSets}/${tw.plannedSets}, left ${tw.leftSets}, volume ${Math.round(tw.actual)}kg, protein ${todayProtein()}/${state.settings.proteinTarget}g, water ${todayWater()}/${waterTarget()}ml, body ${state.body.weightKg}kg at ${state.body.bodyFatPct}% body fat, lean mass ${leanMass().toFixed(1)}kg, muscle mass proxy ${muscleMassEstimate()}kg, goal ${state.body.goal}, tasks ${todayTaskStats().done}/${todayTaskStats().total}, readiness ${state.draft.energy}/5, synced today ${lastSyncToday()}. Be specific and practical.`;state.coach.lastPrompt=prompt;save(true);navigator.clipboard.writeText(prompt).then(()=>toast("Coach prompt copied."))}
+function copyCoachComment(){navigator.clipboard.writeText(state.coach.lastComment||"No coach comment yet.").then(()=>toast("Coach comment copied."))}
+function pasteCoachReply(){const val=$("coachReplyInput").value.trim();if(!val){toast("Paste reply first.");return}state.coach.lastComment=val;state.coach.replyHistory.push({date:today(),time:time(),comment:val});save(true);toast("ChatGPT reply saved. Use Save + Sync to back it up.")}
+
+function drawAllGraphs(){drawHomeGraphs();drawBodyChart();renderSimulator();drawWaterPie();drawProteinPie();drawTaskDeadlineChart()}
+function lastNDates(days=7){const out=[];const d=new Date();for(let i=days-1;i>=0;i--){const x=new Date(d);x.setDate(d.getDate()-i);out.push(x.toISOString().slice(0,10))}return out}
+function sumByDate(arr,d,fn){return arr.filter(x=>x.date===d).reduce((a,x)=>a+fn(x),0)}
+function drawHomeGraphs(){const dates=lastNDates(7);drawSmoothGraph("weeklyVolumeGraph",dates.map(d=>state.workouts.filter(w=>w.date===d).reduce((a,w)=>a+totals(w).actual,0)),{label:"Weekly Volume",unit:"kg"});drawSmoothGraph("proteinGraph",dates.map(d=>sumByDate(state.meals,d,m=>n(m.protein))),{label:"Protein",unit:"g",target:state.settings.proteinTarget});drawSmoothGraph("waterGraph",dates.map(d=>sumByDate(state.water,d,w=>n(w.amount))/1000),{label:"Hydration",unit:"L",target:waterTarget()/1000});drawSmoothGraph("taskGraph",dates.map(d=>state.tasks.filter(t=>t.dueDate===d&&t.status==="Done").length),{label:"Tasks",bar:true});if($("weeklyVolumeNote"))$("weeklyVolumeNote").textContent=state.workouts.length<2?"Not enough workout history yet. Graph will become meaningful after 3–7 logged days.":"Best recent day: "+Math.round(Math.max(...dates.map(d=>state.workouts.filter(w=>w.date===d).reduce((a,w)=>a+totals(w).actual,0))))+"kg";if($("proteinGraphNote"))$("proteinGraphNote").textContent=`Target ${state.settings.proteinTarget}g/day. Remaining today ${Math.max(0,state.settings.proteinTarget-todayProtein())}g.`;if($("waterGraphNote"))$("waterGraphNote").textContent=`Target today ${(waterTarget()/1000).toFixed(1)}L.`;if($("taskGraphNote"))$("taskGraphNote").textContent=`Tasks done today ${todayTaskStats().done}/${todayTaskStats().total}.`}
+function drawSmoothGraph(id,values,opt={}){const c=$(id);if(!c)return;const ctx=c.getContext("2d"),w=c.width,h=c.height,pad=34;ctx.clearRect(0,0,w,h);ctx.fillStyle="rgba(255,255,255,.025)";ctx.fillRect(0,0,w,h);ctx.strokeStyle="rgba(255,255,255,.07)";ctx.lineWidth=1;for(let i=1;i<4;i++){const y=pad+(h-pad*2)*i/4;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke()}const max=Math.max(1,opt.target||0,...values)*1.15;if(opt.target){const y=h-pad-opt.target/max*(h-pad*2);ctx.setLineDash([6,6]);ctx.strokeStyle="rgba(245,158,11,.65)";ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke();ctx.setLineDash([])}const pts=values.map((v,i)=>({x:pad+i*(w-pad*2)/Math.max(1,values.length-1),y:h-pad-v/max*(h-pad*2),v}));if(opt.bar){const bw=(w-pad*2)/values.length*.55;pts.forEach(p=>{const g=ctx.createLinearGradient(0,p.y,0,h-pad);g.addColorStop(0,"#22d3ee");g.addColorStop(1,"#8b5cf6");ctx.fillStyle=g;roundRect(ctx,p.x-bw/2,p.y,bw,h-pad-p.y,8,true,false)})}else{ctx.shadowColor="rgba(34,211,238,.45)";ctx.shadowBlur=14;ctx.strokeStyle="#22d3ee";ctx.lineWidth=3;ctx.beginPath();pts.forEach((p,i)=>{if(i===0)ctx.moveTo(p.x,p.y);else{const prev=pts[i-1],cx=(prev.x+p.x)/2;ctx.bezierCurveTo(cx,prev.y,cx,p.y,p.x,p.y)}});ctx.stroke();ctx.shadowBlur=0;pts.forEach(p=>{ctx.fillStyle="#d9f99d";ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill()})}ctx.fillStyle="rgba(226,232,240,.85)";ctx.font="12px system-ui";ctx.fillText(opt.label||"",12,18);ctx.fillText(`Best ${Math.round(Math.max(...values))}${opt.unit||""}`,w-100,18)}
+function roundRect(ctx,x,y,w,h,r,fill,stroke){if(h<0){y+=h;h=Math.abs(h)}ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);if(fill)ctx.fill();if(stroke)ctx.stroke()}
+function drawBodyChart(){const c=$("bodyChart");if(!c)return;const ctx=c.getContext("2d"),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle="rgba(255,255,255,.025)";ctx.fillRect(0,0,w,h);const cur={fat:fatMass(),lean:leanMass()},targetW=n(state.body.targetWeightKg),targetBf=n(state.body.targetBodyFatPct),tar={fat:fatMass(targetW,targetBf),lean:leanMass(targetW,targetBf)};const max=Math.max(cur.fat+cur.lean,tar.fat+tar.lean,1);[["Current",cur,72],["Target",tar,172]].forEach(([lab,obj,y])=>{ctx.fillStyle="#cbd5e1";ctx.font="14px system-ui";ctx.fillText(lab,30,y+24);let x=120;const leanW=obj.lean/max*(w-180),fatW=obj.fat/max*(w-180);ctx.fillStyle="#22d3ee";roundRect(ctx,x,y,leanW,34,10,true,false);ctx.fillStyle="#ec4899";roundRect(ctx,x+leanW,y,fatW,34,10,true,false);ctx.fillStyle="#e2e8f0";ctx.fillText(`${obj.lean.toFixed(1)}kg lean + ${obj.fat.toFixed(1)}kg fat`,130,y+23)});ctx.fillStyle="#a8b3c7";ctx.fillText("Blue = lean mass estimate, Pink = fat mass estimate",30,h-30)}
+function drawSimChart(s=simulation()){const c=$("simChart");if(!c)return;const ctx=c.getContext("2d"),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle="rgba(255,255,255,.025)";ctx.fillRect(0,0,w,h);drawSmoothBars(ctx,w,h,[["Now weight",s.w],["Target weight",s.targetWeight],["Now fat",s.fat],["Target fat",s.targetFat],["Now lean",s.lean],["Target lean",s.targetLean]])}
+function drawSmoothBars(ctx,w,h,rows){const max=Math.max(...rows.map(r=>r[1]),1);rows.forEach((r,i)=>{const y=40+i*36,bw=r[1]/max*(w-210);ctx.fillStyle="#cbd5e1";ctx.font="13px system-ui";ctx.fillText(r[0],24,y+15);const g=ctx.createLinearGradient(140,y,140+bw,y);g.addColorStop(0,i%2?"#a855f7":"#22d3ee");g.addColorStop(1,i%2?"#ec4899":"#22c55e");ctx.fillStyle=g;roundRect(ctx,140,y,bw,20,8,true,false);ctx.fillStyle="#e2e8f0";ctx.fillText(r[1].toFixed(1)+"kg",150+bw,y+15)})}
+
+function init(){document.querySelectorAll("input,select,textarea").forEach(el=>el.addEventListener("change",()=>{}));["location","focus","bodyWeight","energy","duration","status"].forEach(k=>{const el=$("d_"+k);if(el){el.addEventListener("input",()=>bindInputsToState(true));el.addEventListener("change",()=>bindInputsToState(true))}});["foodSelect","foodQty","proteinOverride"].forEach(id=>{if($(id)){ $(id).addEventListener("input",updateProteinEstimate);$(id).addEventListener("change",updateProteinEstimate)}});if($("foodCategory"))$("foodCategory").addEventListener("change",()=>{fillFoodSelect();updateProteinEstimate()});if($("addMeal"))$("addMeal").onclick=addMeal;document.querySelectorAll(".water").forEach(b=>b.onclick=()=>addWater(b.dataset.ml));if($("undoWater"))$("undoWater").onclick=undoLastWater;if($("addEx"))$("addEx").onclick=addExercise;if($("finishWorkout"))$("finishWorkout").onclick=finishWorkout;if($("finishWorkoutTop"))$("finishWorkoutTop").onclick=finishWorkout;if($("clearDraft"))$("clearDraft").onclick=clearDraft;if($("regenCoach"))$("regenCoach").onclick=renderWorkout;if($("copyPrompt"))$("copyPrompt").onclick=copyPrompt;if($("copyCoachComment"))$("copyCoachComment").onclick=copyCoachComment;if($("pasteCoachReplyBtn"))$("pasteCoachReplyBtn").onclick=pasteCoachReply;if($("saveBody"))$("saveBody").onclick=saveBody;if($("applySuggestedTarget"))$("applySuggestedTarget").onclick=applySuggestedTarget;if($("addTask"))$("addTask").onclick=addTask;if($("addAppointment"))$("addAppointment").onclick=addAppointment;if($("autoTop3"))$("autoTop3").onclick=autoTop3;if($("saveSettings"))$("saveSettings").onclick=saveSettings;if($("saveSyncUrl"))$("saveSyncUrl").onclick=()=>{state.settings.syncUrl=$("s_syncUrl").value.trim();state.settings.syncStatus=state.settings.syncUrl?"Sync URL saved. Ready to sync.":"No sync URL saved.";save(true)};if($("syncNow"))$("syncNow").onclick=()=>syncToGoogleSheets("manual_sync");if($("exportBtn"))$("exportBtn").onclick=exportData;if($("importBtn"))$("importBtn").onclick=()=>$("importFile").click();if($("importFile"))$("importFile").onchange=e=>{if(e.target.files[0])importData(e.target.files[0])};if($("resetBtn"))$("resetBtn").onclick=()=>{if(confirm("Reset local data? Export backup first.")){state=structuredClone(defaultState);save(true)}};bindSim();render();setTimeout(drawAllGraphs,120)}
 init();
 </script>
 </body>
